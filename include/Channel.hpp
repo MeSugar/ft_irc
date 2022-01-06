@@ -13,6 +13,10 @@ class Channel
 		std::vector<Client *>	_channelOperators;
 
 		bool					_isInviteOnly;
+
+		
+		Channel(Channel const &other);
+		Channel &operator=(Channel const &other);
 	public:
 		Channel(/* args */);
 		~Channel();

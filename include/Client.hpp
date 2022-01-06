@@ -26,6 +26,8 @@ class Client
 		bool						_isRegistered;
 		bool						_isOperator;
 
+		Client(Client const &other);
+		Client &operator=(Client const &other);
 
 	public:
 		Client();
