@@ -125,11 +125,12 @@
 #define RPL_ADMINLOC2			258
 #define RPL_ADMINEMAIL			259
 
-std::string const &generateErrorReply(std::string const &from, int const errorCode,
+std::string generateErrorReply(std::string const &from, int const errorCode,
 										std::string const &to = std::string(),
 										std::string const &arg1 = std::string(),
 										std::string const &arg2 = std::string());
-std::string const &generateNormalReply(std::string const &from, int const errorCode,
+
+std::string generateNormalReply(std::string const &from, int const replyCode,
 										std::string const &to = std::string(),
 										std::string const &arg1 = std::string(),
 										std::string const &arg2 = std::string(),

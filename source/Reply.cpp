@@ -1,9 +1,9 @@
-#include "Reply.hpp"
+#include "../include/Reply.hpp"
 
-std::string const &generateErrorReply(std::string const &from, int const errorCode,
-										std::string const &to = std::string(),
-										std::string const &arg1 = std::string(),
-										std::string const &arg2 = std::string())
+std::string generateErrorReply(std::string const &from, int const errorCode,
+										std::string const &to,
+										std::string const &arg1,
+										std::string const &arg2)
 {
 	std::stringstream ss;
 	ss << errorCode;
@@ -103,20 +103,20 @@ std::string const &generateErrorReply(std::string const &from, int const errorCo
 	}
 }
 
-std::string const &generateNormalReply(std::string const &from, int const errorCode,
-										std::string const &to = std::string(),
-										std::string const &arg1 = std::string(),
-										std::string const &arg2 = std::string(),
-										std::string const &arg3 = std::string(),
-										std::string const &arg4 = std::string(),
-										std::string const &arg5 = std::string(),
-										std::string const &arg6 = std::string(),
-										std::string const &arg7 = std::string())
+std::string generateNormalReply(std::string const &from, int const replyCode,
+										std::string const &to,
+										std::string const &arg1,
+										std::string const &arg2,
+										std::string const &arg3,
+										std::string const &arg4,
+										std::string const &arg5,
+										std::string const &arg6,
+										std::string const &arg7)
 {
 	std::stringstream ss;
-	ss << errorCode;
+	ss << replyCode;
 	std::string prefix(":" + from + " " + ss.str() + " " + to + " ");
-	switch (errorCode)
+	switch (replyCode)
 	{
 		case RPL_USERHOST:
 			return (std::string(prefix + ":" + arg1 + " " + arg2 + " " + arg3 + " " + arg4 + " " + arg5  + "\n"));

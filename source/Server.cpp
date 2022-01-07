@@ -1,9 +1,11 @@
-#include "Server.hpp"
+#include "../include/Server.hpp"
 
 Server::Server(int port, std::string const &password) : _port(port), _password(password)
 {
 	this->parseMOTD();
 }
+
+Server::~Server() {}
 
 // private methods
 void    Server::parseMOTD()
@@ -13,4 +15,5 @@ void    Server::parseMOTD()
 	while (file.is_open() && getline(file, str))
 		this->_MOTD.push_back(str);
 	file.close();
+
 }

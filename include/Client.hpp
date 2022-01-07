@@ -19,7 +19,7 @@ class Client
 		std::string					_realname;
 		std::string					_password;
 
-		Server const&				_server;
+		// Server const&				_server;
 		std::vector<Channel *>		_channels;
 		unsigned const				_channelsLimit;
 		
