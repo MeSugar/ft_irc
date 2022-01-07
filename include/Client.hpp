@@ -12,18 +12,18 @@ class Client
 {
 	private:
 		int							_clientSock;
+		bool						_isRegistered;
+		std::string					_password;
 		std::string					_nickname;
 		std::string					_hostname;
 		std::string					_username;
 		std::string const			_servername;
 		std::string					_realname;
-		std::string					_password;
 
 		// Server const&				_server;
 		std::vector<Channel *>		_channels;
 		unsigned const				_channelsLimit;
 		
-		bool						_isRegistered;
 		bool						_isOperator;
 
 		Client(Client const &other);
@@ -32,4 +32,12 @@ class Client
 	public:
 		Client();
 		~Client();
+
+		// getters
+		bool	getRegistrationStatus() const;
+
+		// setters
+		void	setPassword(std::string const &pass);
+		void	setNickname(std::string const &nick);
+
 };

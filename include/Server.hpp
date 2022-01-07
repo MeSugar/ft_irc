@@ -10,7 +10,6 @@
 #include "Message.hpp"
 #include "Reply.hpp"
 
-
 class Client;
 class Channel;
 class Message;
@@ -34,7 +33,13 @@ class Server
 		Server &operator=(Server const &other);
 
 		void	parseMOTD();
+
+		void	sendReply(std::string const &reply) const; //reply management (just for testing, need to be rewritten to send reply to user socket)
+
 	public:
 		Server(int port, std::string const &password);
 		~Server();
+
+		// commands
+		void	commandPASS(Client &client, Message const &msg);
 };
