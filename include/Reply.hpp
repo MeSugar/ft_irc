@@ -129,4 +129,12 @@ std::string const &generateErrorReply(std::string const &from, int const errorCo
 										std::string const &to = std::string(),
 										std::string const &arg1 = std::string(),
 										std::string const &arg2 = std::string());
-std::string const &generateNormalReply();
+std::string const &generateNormalReply(std::string const &from, int const errorCode,
+										std::string const &to = std::string(),
+										std::string const &arg1 = std::string(),
+										std::string const &arg2 = std::string(),
+										std::string const &arg3 = std::string(),
+										std::string const &arg4 = std::string(),
+										std::string const &arg5 = std::string(),
+										std::string const &arg6 = std::string(),
+										std::string const &arg7 = std::string());

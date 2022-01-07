@@ -17,15 +17,17 @@ class Message;
 class Server
 {
 	private:
-		int								_port;
-		std::string						_password;
-		int								_serverSock;
-		std::string						_servername;
-		std::vector<std::string>		_MOTD; //rfc 8.5
+		int									_port;
+		std::string							_password;
+		int									_serverSock;
+		std::string							_servername;
+		std::vector<std::string>			_MOTD; //rfc 8.5
 
 
-		std::vector<Client *>			_clients;
-		std::vector<Channel *>			_channels;
+		std::vector<Client *>				_clients;
+		std::vector<Channel *>				_channels;
+		std::map<std::string, std::string>	_operators;
+
 
 		Server(Server const &other);
 		Server &operator=(Server const &other);
