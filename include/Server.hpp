@@ -13,7 +13,7 @@ class Client;
 class Channel;
 struct Message;
 
-class Server
+class Server : public TemplateRun
 {
 	private:
 		int									_port;
@@ -38,6 +38,11 @@ class Server
 	public:
 		Server(int port, std::string const &password);
 		~Server();
+
+		// connection managment
+		virtual int run();
+        virtual int loop();
+        virtual int chat(int fdsock);
 
 		// commands
 		void	commandPASS(Client &client, Message &msg);

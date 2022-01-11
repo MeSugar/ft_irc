@@ -2,6 +2,7 @@
 
 #include <cctype>
 #include <cstdlib>
+#include "TemplateRun.hpp"
 #include "Server.hpp"
 #include "Channel.hpp"
 
@@ -15,10 +16,9 @@ struct Message
 	std::vector<std::string>	params;
 };
 
-class Client
+class Client : public TemplateRun
 {
 	private:
-		int							_clientSock;
 		bool						_isRegistered;
 		std::string					_password;
 		std::string					_nickname;
