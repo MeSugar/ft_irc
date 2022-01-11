@@ -7,7 +7,10 @@ Client::Client()
 Client::~Client() {}
 
 // getters
-bool	Client::getRegistrationStatus() const { return this->_isRegistered; }
+bool				Client::getRegistrationStatus() const { return this->_isRegistered; }
+std::string const	&Client::getNickname() const { return this->_nickname; }
+std::string const	&Client::getUsername() const { return this->_username; }
+
 
 
 // setters

@@ -48,7 +48,9 @@ class Client
 		~Client();
 
 		// getters
-		bool	getRegistrationStatus() const;
+		bool				getRegistrationStatus() const;
+		std::string const	&getNickname() const;
+		std::string const	&getUsername() const;
 
 		// setters
 		void	setPassword(std::string const &pass);

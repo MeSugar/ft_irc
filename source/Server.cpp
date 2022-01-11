@@ -26,7 +26,7 @@ void	Server::sendReply(std::string const &reply) const
 // commands
 void	Server::commandPASS(Client &client, Message &msg)
 {
-	if (msg.prefix.empty())
+	if (msg.prefix.empty() && client.getNickname().empty() && client.getUsername().empty())
 	{
 		if (client.getRegistrationStatus())
 			this->sendReply(generateErrorReply(this->_servername, ERR_ALREADYREGISTRED));
