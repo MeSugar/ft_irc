@@ -24,15 +24,15 @@ void	Server::sendReply(std::string const &reply) const
 }
 
 // commands
-void	Server::commandPASS(Client &client, Message const &msg)
+void	Server::commandPASS(Client &client, Message &msg)
 {
-	if (msg.getPrefix().empty())
+	if (msg.prefix.empty())
 	{
 		if (client.getRegistrationStatus())
 			this->sendReply(generateErrorReply(this->_servername, ERR_ALREADYREGISTRED));
-		else if (msg.getParams().empty())
+		else if (msg.params.empty())
 			this->sendReply(generateErrorReply(this->_servername, ERR_NEEDMOREPARAMS, "PASS"));
 		else
-			client.setPassword(msg.getParams()[0]);
+			client.setPassword(msg.params[0]);
 	}
 }

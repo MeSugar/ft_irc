@@ -1,12 +1,19 @@
 #pragma once
 
-#include "Message.hpp"
+#include <cctype>
+#include <cstdlib>
 #include "Server.hpp"
 #include "Channel.hpp"
 
-class Message;
 class Server;
 class Channel;
+
+struct Message
+{
+	std::string					prefix;
+	std::string					command;
+	std::vector<std::string>	params;
+};
 
 class Client
 {
@@ -29,6 +36,13 @@ class Client
 		Client(Client const &other);
 		Client &operator=(Client const &other);
 
+		// parser utils
+		int		check_length(char* buf);
+		int		get_prefix(char* buf, Message& res);
+		void    get_command(char *buf, Message& res, int& i);
+		void	get_params(char *buf, Message& res, int& i);
+		int		check_command(Message& mes);
+
 	public:
 		Client();
 		~Client();
@@ -40,4 +54,6 @@ class Client
 		void	setPassword(std::string const &pass);
 		void	setNickname(std::string const &nick);
 
+		// parser
+		Message	parse(char* buf);
 };

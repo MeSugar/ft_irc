@@ -7,12 +7,11 @@
 #include <fstream>
 #include "Client.hpp"
 #include "Channel.hpp"
-#include "Message.hpp"
 #include "Reply.hpp"
 
 class Client;
 class Channel;
-class Message;
+struct Message;
 
 class Server
 {
@@ -41,5 +40,5 @@ class Server
 		~Server();
 
 		// commands
-		void	commandPASS(Client &client, Message const &msg);
+		void	commandPASS(Client &client, Message &msg);
 };

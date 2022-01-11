@@ -5,13 +5,12 @@
 // 	Client client;
 // 	std::vector<std::string> vec1;
 // 	std::vector<std::string> vec2;
-// 	vec1.push_back("bbb");
-// 	vec1.push_back("ccc");
+// 	// vec1.push_back("bbb");
+// 	// vec1.push_back("ccc");
 // 	Message msg1("aaa", "PASS", vec1);
 // 	Message msg2(std::string(), "PASS", vec1);
 // 	serv.commandPASS(client, msg1);
 // 	serv.commandPASS(client, msg2);
-	
 // }
 
 int main(int ac, char **av)
@@ -23,6 +22,7 @@ int main(int ac, char **av)
 		int num;
 		ss >> num;
 		Server serv(num, av[2]);
+
 		// testPASScmd(serv);
 		return 0;
 	}
