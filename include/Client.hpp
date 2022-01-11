@@ -37,11 +37,11 @@ class Client
 		Client &operator=(Client const &other);
 
 		// parser utils
-		int		check_length(char* buf);
-		int		get_prefix(char* buf, Message& res);
-		void    get_command(char *buf, Message& res, int& i);
-		void	get_params(char *buf, Message& res, int& i);
-		int		check_command(Message& mes);
+		int		check_length(const char* buf);
+		int		get_prefix(const char* buf, Message& res);
+		void    get_command(const char *buf, Message& res, int& i);
+		void	get_params(const char *buf, Message& res, int& i);
+		int		check_command(const Message& mes);
 
 	public:
 		Client();
@@ -54,6 +54,11 @@ class Client
 		void	setPassword(std::string const &pass);
 		void	setNickname(std::string const &nick);
 
+
+		//TEST
+		void	client_test_loop(Server& serv);
+
 		// parser
-		Message	parse(char* buf);
+		Message	parse(const char* buf);
+		void	command_handle(Message& mes, Server& serv);
 };

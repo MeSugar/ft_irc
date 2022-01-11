@@ -39,6 +39,10 @@ class Server
 		Server(int port, std::string const &password);
 		~Server();
 
+
+		//TEST
+		void	server_test_client();
+
 		// commands
 		void	commandPASS(Client &client, Message &msg);
 };

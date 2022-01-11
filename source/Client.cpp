@@ -16,7 +16,7 @@ void    Client::setPassword(std::string const &pass) { this->_password = pass; }
 void	Client::setNickname(std::string const &nick) { this->_nickname = nick; }
 
 // parser utils
-int     Client::check_length(char* buf)
+int     Client::check_length(const char* buf)
 {
 	int	i;
 	
@@ -29,7 +29,7 @@ int     Client::check_length(char* buf)
 		return (0);
 }
 
-int		Client::get_prefix(char* buf, Message& res)
+int		Client::get_prefix(const char* buf, Message& res)
 {
 	int	i;
 	
@@ -43,17 +43,17 @@ int		Client::get_prefix(char* buf, Message& res)
 	return (i);
 }
 
-void	Client::get_command(char *buf, Message& res, int& i)
+void	Client::get_command(const char *buf, Message& res, int& i)
 {
 	int	start = i;
 
 	while (buf[i] != '\r' && buf[i] != ' ')
 		i++;
 	if (i - start > 0)
-		res.prefix.append(&buf[start], i - start);
+		res.command.append(&buf[start], i - start);
 }
 
-void	Client::get_params(char *buf, Message& res, int& i)
+void	Client::get_params(const char *buf, Message& res, int& i)
 {
 	int	start;
 	std::string	temp;
@@ -78,7 +78,7 @@ void	Client::get_params(char *buf, Message& res, int& i)
 	}
 }
 
-int		Client::check_command(Message& mes)
+int		Client::check_command(const Message& mes)
 {
 	const char*	com_array[] = {"PASS", "NICK", "USER", "OPER", "QUIT",
 						"JOIN", "PART", "MODE", "TOPIC", "NAMES", "LIST", "INVITE", "KICK",
@@ -116,7 +116,7 @@ int		Client::check_command(Message& mes)
 }
 
 // parser
-Message		Client::parse(char* buf)
+Message		Client::parse(const char* buf)
 {
 	Message	res;
 	int		i;
@@ -131,4 +131,30 @@ Message		Client::parse(char* buf)
 	if (buf[i] != '\r')
 		get_params(buf, res, i);
 	return (res);
+}
+
+void	Client::command_handle(Message& mes, Server& serv)
+{
+	typedef		void (Server::*funptr)(Client&, Message&);
+	funptr		f[] = {&Server::commandPASS};
+
+	if (check_command(mes) == 0)
+		(serv.*f[0])(*this, mes);
+}
+
+//TEST
+void	Client::client_test_loop(Server& serv)
+{
+	std::string	temp;
+	Message		mes;
+	
+	while (getline(std::cin, temp) && temp != "EXIT")
+	{
+		temp += "\r\n";
+		mes = parse(temp.c_str());
+		std::cout << "prefix: " << mes.prefix << std::endl << "command: " << mes.command << std::endl << "params: " << std::endl;
+		for (std::vector<std::string>::iterator it = mes.params.begin(); it != mes.params.end(); it++)
+			std::cout << *it << std::endl;
+		command_handle(mes, serv);
+	}
 }

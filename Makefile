@@ -1,8 +1,8 @@
 NAME		=	ircserv
 
-CFLAGS		=	-Wall -Wextra -Werror -std=c++98
+CFLAGS		=	-Wall -Wextra -Werror -std=c++98 -g
 
-CC			=	clang++
+CC			=	g++
 
 INCLUDES	=	include/Channel.hpp include/Client.hpp include/Reply.hpp \
 				include/Server.hpp

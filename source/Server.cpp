@@ -1,7 +1,7 @@
 #include "../include/Server.hpp"
 
 Server::Server(int port, std::string const &password)
-: _port(port), _password(password), _servername("Nasha Iro4ka 1.0")
+: _port(port), _password(password), _servername("Nasha_Iro4ka_1.0")
 {
 	this->parseMOTD();
 }
@@ -21,6 +21,14 @@ void    Server::parseMOTD()
 void	Server::sendReply(std::string const &reply) const
 {
 	std::cout << reply << std::endl;
+}
+
+//TEST
+void	Server::server_test_client()
+{
+	Client	test_client;
+
+	test_client.client_test_loop(*this);
 }
 
 // commands
