@@ -32,6 +32,7 @@ class Client : public TemplateRun
 		unsigned const				_channelsLimit;
 		
 		bool						_isOperator;
+		std::vector<std::string>	_nicknameHistory;
 
 		Client(Client const &other);
 		Client &operator=(Client const &other);
@@ -45,16 +46,19 @@ class Client : public TemplateRun
 
 	public:
 		Client();
-		~Client();
+		virtual ~Client();
 
 		// getters
 		bool				getRegistrationStatus() const;
+		std::string	const	&getPassword() const;
 		std::string const	&getNickname() const;
 		std::string const	&getUsername() const;
 
 		// setters
 		void	setPassword(std::string const &pass);
 		void	setNickname(std::string const &nick);
+
+		void	setRegistrationStatus();
 
 		// parser
 		Message	parse(char* buf);
