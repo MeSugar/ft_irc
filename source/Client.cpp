@@ -8,15 +8,20 @@ Client::~Client() {}
 
 // getters
 bool				Client::getRegistrationStatus() const { return this->_isRegistered; }
+std::string	const	&Client::getPassword() const { return this->_password; }
 std::string const	&Client::getNickname() const { return this->_nickname; }
 std::string const	&Client::getUsername() const { return this->_username; }
-
-
 
 // setters
 void    Client::setPassword(std::string const &pass) { this->_password = pass; }
 
-void	Client::setNickname(std::string const &nick) { this->_nickname = nick; }
+void	Client::setNickname(std::string const &nick)
+{
+	this->_nickname = nick;
+	this->_nicknameHistory.push_back(nick);
+}
+
+void	Client::setRegistrationStatus() { this->_isRegistered = true; }
 
 // parser utils
 int     Client::check_length(char* buf)
