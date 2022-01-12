@@ -86,6 +86,7 @@ void	Server::addClient(Client *client)
 	client->setRegistrationStatus();
 	this->_clients.push_back(client);
 	this->_connectedClients.push_back(client);
+	this->sendMOTD();
 }
 
 // connection managment
