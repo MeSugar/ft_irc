@@ -2,6 +2,7 @@
 
 #include <cctype>
 #include <cstdlib>
+#include "TemplateRun.hpp"
 #include "Server.hpp"
 #include "Channel.hpp"
 
@@ -15,10 +16,9 @@ struct Message
 	std::vector<std::string>	params;
 };
 
-class Client
+class Client : public TemplateRun
 {
 	private:
-		int							_clientSock;
 		bool						_isRegistered;
 		std::string					_password;
 		std::string					_nickname;
@@ -32,6 +32,7 @@ class Client
 		unsigned const				_channelsLimit;
 		
 		bool						_isOperator;
+		std::vector<std::string>	_nicknameHistory;
 
 		Client(Client const &other);
 		Client &operator=(Client const &other);
@@ -45,10 +46,13 @@ class Client
 
 	public:
 		Client();
-		~Client();
+		virtual ~Client();
 
 		// getters
-		bool	getRegistrationStatus() const;
+		bool				getRegistrationStatus() const;
+		std::string	const	&getPassword() const;
+		std::string const	&getNickname() const;
+		std::string const	&getUsername() const;
 
 		// setters
 		void	setPassword(std::string const &pass);
@@ -57,6 +61,9 @@ class Client
 
 		//TEST
 		void	client_test_loop(Server& serv);
+		
+		
+		void	setRegistrationStatus();
 
 		// parser
 		Message	parse(const char* buf);

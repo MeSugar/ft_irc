@@ -5,9 +5,10 @@ CFLAGS		=	-Wall -Wextra -Werror -std=c++98 -g
 CC			=	g++
 
 INCLUDES	=	include/Channel.hpp include/Client.hpp include/Reply.hpp \
-				include/Server.hpp
+				include/Server.hpp include/Socket.hpp include/TemplateRun.hpp
 
 SRCS		=	source/main.cpp source/Client.cpp source/Reply.cpp source/Server.cpp \
+				source/Socket.cpp source/TemplateRun.cpp
 
 all : $(NAME)
 
