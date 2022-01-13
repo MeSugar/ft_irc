@@ -16,7 +16,7 @@ struct Message
 	std::vector<std::string>	params;
 };
 
-class Client : public TemplateRun
+class Client
 {
 	private:
 		bool						_isRegistered;
