@@ -57,6 +57,7 @@ class Client : public TemplateRun
 		// setters
 		void	setPassword(std::string const &pass);
 		void	setNickname(std::string const &nick);
+		void	setUser(std::vector<std::string> &params);
 
 		void	setRegistrationStatus();
 

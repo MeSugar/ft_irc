@@ -83,10 +83,14 @@ void	Server::removeClient(Client *client, std::vector<Client *> &clients)
 
 void	Server::addClient(Client *client)
 {
-	client->setRegistrationStatus();
-	this->_clients.push_back(client);
-	this->_connectedClients.push_back(client);
-	this->sendMOTD();
+	if (!client->getRegistrationStatus() && client->getPassword() == this->_password
+			&& !client->getNickname().empty() && !client->getUsername().empty())
+	{
+		client->setRegistrationStatus();
+		this->_clients.push_back(client);
+		this->_connectedClients.push_back(client);
+		this->sendMOTD();
+	}
 }
 
 // connection managment
@@ -170,9 +174,25 @@ void	Server::commandNICK(Client &client, Message &msg)
 			if (tmp != NULL)
 				removeClient(tmp, this->_clients);
 			client.setNickname(msg.params[0]);
-			if (!client.getRegistrationStatus() && !client.getUsername().empty())
-				this->addClient(&client);
+			this->addClient(&client);
 		}
 	}
 }
+
+void	Server::commandUSER(Client &client, Message &msg)
+{
+	if (msg.prefix.empty() && !client.getPassword().empty())
+	{
+		if (client.getRegistrationStatus())
+			this->sendReply(generateErrorReply(this->_servername, ERR_ALREADYREGISTRED));
+		else if (msg.params.size() < 4)
+			this->sendReply(generateErrorReply(this->_servername, ERR_NEEDMOREPARAMS, "USER"));
+		else
+		{
+			client.setUser(msg.params);
+			this->addClient(&client);
+		}
+	}
+}
+
 
