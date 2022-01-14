@@ -20,6 +20,7 @@ class Client : public TemplateRun
 {
 	private:
 		bool						_isRegistered;
+		bool						_isOperator;
 		std::string					_password;
 		std::string					_nickname;
 		std::string					_hostname;
@@ -31,7 +32,6 @@ class Client : public TemplateRun
 		std::vector<Channel *>		_channels;
 		unsigned const				_channelsLimit;
 		
-		bool						_isOperator;
 		std::vector<std::string>	_nicknameHistory;
 
 		Client(Client const &other);
@@ -53,6 +53,7 @@ class Client : public TemplateRun
 		std::string	const	&getPassword() const;
 		std::string const	&getNickname() const;
 		std::string const	&getUsername() const;
+		std::string const	&getHostname() const;
 
 		// setters
 		void	setPassword(std::string const &pass);
@@ -60,6 +61,7 @@ class Client : public TemplateRun
 		void	setUser(std::vector<std::string> &params);
 
 		void	setRegistrationStatus();
+		void	setOperatorStatus();
 
 		// parser
 		Message	parse(char* buf);

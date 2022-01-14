@@ -98,6 +98,8 @@ std::string generateErrorReply(std::string const &from, int const errorCode,
 			return (std::string(prefix + arg1 + " " + arg2 + " :Unknown MODE flag\n"));
 		case ERR_USERSDONTMATCH:
 			return (std::string(prefix + arg1 + " " + arg2 + " :Cant change mode for other users\n"));
+		case ERR_WRONGUSERNAME:
+			return (std::string(prefix + arg1 + " " + arg2 + " :Wrong user\n"));
 		default:
 			return (std::string(prefix + arg1 + " " + arg2 + " :Something bad happend, but we really don't know\n"));
 	}
