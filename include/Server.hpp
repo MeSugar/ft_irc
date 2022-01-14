@@ -39,8 +39,8 @@ class Server : public TemplateRun
 		bool	validateNickname(std::string const &nick); // check if nickname contains invalid characters
 		bool	comparePrefixAndNick(std::string const &prefix, Client const &client);
 		Client	*findClient(std::string const &nick, std::vector<Client *> &clients); // find a client using nickname
-		void	removeClient(Client *client, std::vector<Client *> &clients); // removes a client from a list
-		void	addClient(Client *client); // adds a client to both client lists 
+		void	removeClient(Client *client, std::vector<Client *> &clients); // removes a client from a given database
+		void	addClient(Client *client); // adds a client to clients database
 
 	public:
 		Server(int port, std::string const &password);
@@ -54,4 +54,5 @@ class Server : public TemplateRun
 		// commands
 		void	commandPASS(Client &client, Message &msg);
 		void	commandNICK(Client &client, Message &msg);
+		void	commandUSER(Client &client, Message &msg);
 };

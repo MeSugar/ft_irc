@@ -23,6 +23,15 @@ void	Client::setNickname(std::string const &nick)
 
 void	Client::setRegistrationStatus() { this->_isRegistered = true; }
 
+void	Client::setUser(std::vector<std::string> &params)
+{
+	this->_username = params[0];
+	this->_hostname = params[1];
+	if (params[3][0] == ':')
+		params[3].erase(params[3].begin());
+	this->_realname = params[3];
+}
+
 // parser utils
 int     Client::check_length(char* buf)
 {
