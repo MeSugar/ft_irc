@@ -224,9 +224,9 @@ void	Server::commandOPER(Client &client, Message &msg)
 	{
 		if (msg.params.size() < 4)
 			this->sendReply(generateErrorReply(this->_servername, ERR_NEEDMOREPARAMS, client.getNickname(), "OPER"));
-		else if (this->checkOperatorList(msg.params[0], msg.params[1]) == ERR_WRONGUSERNAME)
+		else if (msg.params.size() == 2 && this->checkOperatorList(msg.params[0], msg.params[1]) == ERR_WRONGUSERNAME)
 			this->sendReply(generateErrorReply(this->_servername, ERR_WRONGUSERNAME, client.getNickname(), "OPER"));
-		else if (this->checkOperatorList(msg.params[0], msg.params[1]) == ERR_PASSWDMISMATCH)
+		else if (msg.params.size() == 2 && this->checkOperatorList(msg.params[0], msg.params[1]) == ERR_PASSWDMISMATCH)
 			this->sendReply(generateErrorReply(this->_servername, ERR_PASSWDMISMATCH, client.getNickname(), "OPER"));
 		else if (!this->checkHostnameList(client.getHostname()))
 			this->sendReply(generateErrorReply(this->_servername, ERR_NOOPERHOST, client.getNickname(), "OPER"));
