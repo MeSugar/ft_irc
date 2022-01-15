@@ -1,5 +1,14 @@
 #include "../include/Server.hpp"
 
+//TEST
+void	Server::server_test_client()
+{
+	Client	test_client;
+
+	test_client.setRegistrationStatus();
+	test_client.client_test_loop(*this);
+}
+
 Channel*	Server::add_channel(std::string name, Client& first)
 {
 	Channel*	channel = new Channel(name, &first);
