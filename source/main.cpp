@@ -22,7 +22,7 @@ int main(int ac, char **av)
 		int num;
 		ss >> num;
 		Server serv(num, av[2]);
-
+		serv.run();
 		// testPASScmd(serv);
 		return 0;
 	}

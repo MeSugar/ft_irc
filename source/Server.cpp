@@ -1,8 +1,12 @@
 #include "../include/Server.hpp"
 
-Server::Server(int port, std::string const &password)
-: _port(port), _password(password), _servername("Nasha Iro4ka 1.0")
+Server::Server(int port, std::string const &password) : TemplateRun(port, password)
+// : _port(port), _password(password), _servername("Nasha Iro4ka 1.0")
 {
+	this->port = _port;
+	this->_password = password;
+	this->_servername = "Nash Iro4ka 1.0";
+	// Server::TemplateRun(_port, _password);
 	this->parseMOTD();
 }
 

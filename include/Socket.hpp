@@ -32,7 +32,7 @@ class Socket {
         int _connect();
         int _linsten(int backlog);
         int _accept();
-        int _getaddrinfo(int port, std::string pass);
+        int _getaddrinfo();
         int getPort();
         int getSockfd();
         int getConnfd();

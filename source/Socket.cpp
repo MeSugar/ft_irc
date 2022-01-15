@@ -9,6 +9,7 @@ Socket::Socket() {
 }
 
 Socket::Socket(int port, std::string pass) {
+    this->host = "localhost";
     this->port = port;
     this->pass = pass;
     this->sockfd = -1;
@@ -114,12 +115,13 @@ int Socket::_getaddrinfo() {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
     // Заполняю res
-    const char *host = this->host.c_str();
+    // const char *host = this->host.c_str();
     std::stringstream ss;
     ss << this->port;
     std::string str = ss.str();
     const char *port = str.c_str();
-    getaddrinfo(host, port, &hints, &this->res);
+    getaddrinfo(NULL, port, &hints, &this->res);
+    return (0);
 }
 
 int Socket::getPort() {
