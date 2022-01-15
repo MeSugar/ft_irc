@@ -116,26 +116,24 @@ bool	Server::checkHostnameList(std::string const &host)
 	return false;
 }
 
-// connection managment
 int Server::chat(int sockfd) {
-	printf("Server: %i\n", sockfd);
-	char buff[MAX];
-	int n;
-	for (;;) {
-		bzero(buff, MAX);
-		read(sockfd, buff, sizeof(buff));
-		printf("From client: %s\t To client : ", buff);
-		bzero(buff, MAX);
-		n = 0;
-		while ((buff[n++] = getchar()) != '\n')
-			;
-		write(sockfd, buff, sizeof(buff));
-		if (strncmp("exit", buff, 4) == 0) {
-			printf("Server Exit...\n");
+	std::string msg;
+	char buff[100];
+	int cntBytes;
+
+	while ((cntBytes = recv(sockfd, buff, 99, 0)) > 0) {
+		buff[cntBytes] = 0;
+		msg += buff;
+		buff[0] = 0;
+		if (msg.find('\n') != std::string::npos) {
 			break;
 		}
 	}
-	return 0;
+	if (msg.length() > 512)
+		msg = msg.substr(0, 510) + "\r\n";
+	while (msg.find("\r\n") != std::string::npos)
+		msg.replace(msg.find("\r\n"), 2, "\n");
+	return (0);
 }
 
 int Server::run()
