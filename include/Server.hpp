@@ -27,6 +27,7 @@ class Server : public TemplateRun
 		std::vector<Client *>				_connectedClients;
 		std::vector<Channel *>				_channels;
 		std::map<std::string, std::string>	_operators;
+		std::vector<std::string>			_operatorHosts; // list of hostnames whose clinets are allowed to become IRC operator
 
 
 		Server(Server const &other);
@@ -39,9 +40,12 @@ class Server : public TemplateRun
 		bool		validateNickname(std::string const &nick); // check if nickname contains invalid characters
 		bool		comparePrefixAndNick(std::string const &prefix, Client const &client);
 		Client		*findClient(std::string const &nick, std::vector<Client *> &clients); // find a client using nickname
-		Channel*	find_channel(const std::string& name); // find a channel using nickname
 		void		removeClient(Client *client, std::vector<Client *> &clients); // removes a client from a list
 		void		addClient(Client *client); // adds a client to both client lists
+		int			checkOperatorList(std::string const &user, std::string const &pass); // checks whether _operators list contains given user and given pass matches
+		bool		checkHostnameList(std::string const &host); // checks whether server allowes to become an IRC operator being connected from the client's host 
+
+		Channel*	find_channel(const std::string& name); // find a channel using nickname
 		Channel*	add_channel(std::string name, Client& first); //allocates and adds channel, with the first client as its operator
 		bool		check_channel_name(const std::string& str) const; //checks if the name is valid
 		void 		divide_comma(std::vector<std::string> &to, std::string str); //splits a given string with comma as a delimiter
@@ -62,5 +66,7 @@ class Server : public TemplateRun
 		// commands
 		void	commandPASS(Client &client, Message &msg);
 		void	commandNICK(Client &client, Message &msg);
+		void	commandUSER(Client &client, Message &msg);
+		void	commandOPER(Client &client, Message &msg);
 		void	commandJOIN(Client &client, Message &msg);
 };

@@ -20,6 +20,7 @@ class Client
 {
 	private:
 		bool						_isRegistered;
+		bool						_isOperator;
 		std::string					_password;
 		std::string					_nickname;
 		std::string					_hostname;
@@ -32,7 +33,6 @@ class Client
 		unsigned const				_channelsLimit;
 		std::vector<std::string>	_channels_invited;
 		
-		bool						_isOperator;
 		std::vector<std::string>	_nicknameHistory;
 
 		Client(Client const &other);
@@ -54,11 +54,15 @@ class Client
 		std::string	const	&getPassword() const;
 		std::string const	&getNickname() const;
 		std::string const	&getUsername() const;
+		std::string const	&getHostname() const;
 
 		// setters
 		void	setPassword(std::string const &pass);
 		void	setNickname(std::string const &nick);
+		void	setUser(std::vector<std::string> &params);
 
+		void	setRegistrationStatus();
+		void	setOperatorStatus();
 
 		//TEST
 		void	client_test_loop(Server& serv);

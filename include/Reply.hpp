@@ -48,6 +48,7 @@
 #define ERR_NOOPERHOST			491
 #define ERR_UMODEUNKNOWNFLAG	501
 #define ERR_USERSDONTMATCH		502
+#define	ERR_WRONGUSERNAME		503
 
 // Command responses
 #define RPL_NONE				300

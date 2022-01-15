@@ -1,25 +1,29 @@
 #include "../include/Socket.hpp"
 
 Socket::Socket() {
+    this->host = "localhost";
     this->port = 8080;
-    this->host = "127.0.0.1";
     this->sockfd = -1;
     
-    struct addrinfo hints;
+    this->_getaddrinfo();
+}
 
-    bzero(&hints, sizeof(hints));
-   
-    hints.ai_family = AF_UNSPEC; 
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE;
-    // Заполняю res
-    const char *host = this->host.c_str();
-    std::stringstream ss;
-    ss << this->port;
-    // const char *port = std::to_string(this->port).c_str();
-    std::string str = ss.str();
-    const char *port = str.c_str();
-    getaddrinfo(host, port, &hints, &this->res);
+Socket::Socket(int port, std::string pass) {
+    this->host = "localhost";
+    this->port = port;
+    this->pass = pass;
+    this->sockfd = -1;
+
+    this->_getaddrinfo();
+}
+
+Socket::Socket(std::string host, int port, std::string pass) {
+    this->host = host;
+    this->port = port;
+    this->pass = pass;
+    this->sockfd = -1;
+
+    this->_getaddrinfo();
 }
 
 int Socket::_socket() {
@@ -99,6 +103,24 @@ int Socket::_accept() {
     } else {
         printf("server accept the client...\n");
     }
+    return (0);
+}
+
+int Socket::_getaddrinfo() {
+    struct addrinfo hints;
+
+    bzero(&hints, sizeof(hints));
+   
+    hints.ai_family = AF_UNSPEC; 
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+    // Заполняю res
+    // const char *host = this->host.c_str();
+    std::stringstream ss;
+    ss << this->port;
+    std::string str = ss.str();
+    const char *port = str.c_str();
+    getaddrinfo(NULL, port, &hints, &this->res);
     return (0);
 }
 

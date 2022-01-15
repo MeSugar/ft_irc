@@ -19,17 +19,20 @@ class Socket {
         int         sockfd;
         int         connfd;
         int         port;
-		// std::string	password;
         // char        buff[MAX];
+		std::string	pass;
         std::string host;
         struct addrinfo *res;
     public:
         Socket();
+        Socket(int port, std::string pass);
+        Socket(std::string host, int port, std::string pass);
         int _socket();
         int _bind();
         int _connect();
         int _linsten(int backlog);
         int _accept();
+        int _getaddrinfo();
         int getPort();
         int getSockfd();
         int getConnfd();
