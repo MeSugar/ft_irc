@@ -180,6 +180,8 @@ void	Client::command_handle(Message& mes, Server& serv)
 	typedef		void (Server::*funptr)(Client&, Message&);
 	funptr		f[] = {&Server::commandPASS, &Server::commandNICK, NULL, NULL, NULL, &Server::commandJOIN};
 
+	//int	i = check_command(mes)
+	//(serv.*f[i])(*this, mes);
 	if (check_command(mes) == 0)
 		(serv.*f[0])(*this, mes);
 	else if (check_command(mes) == 1)
