@@ -23,6 +23,26 @@ void	Client::setNickname(std::string const &nick)
 
 void	Client::setRegistrationStatus() { this->_isRegistered = true; }
 
+bool	Client::check_invitation(const std::string&	ch_name)
+{
+	for (std::vector<std::string>::iterator it = _channels_invited.begin(); it != _channels_invited.end(); it++)
+		if (*it == ch_name)
+			return (true);
+	return (false);
+}
+
+void	Client::add_channel(Channel* channel)
+{
+	_channels.push_back(channel);
+}
+
+bool	Client::under_channels_limit() const
+{
+	if (_channels.size() < _channelsLimit)
+		return (true);
+	return (false);
+}
+
 // parser utils
 int     Client::check_length(const char* buf)
 {
@@ -144,12 +164,14 @@ Message		Client::parse(const char* buf)
 void	Client::command_handle(Message& mes, Server& serv)
 {
 	typedef		void (Server::*funptr)(Client&, Message&);
-	funptr		f[] = {&Server::commandPASS, &Server::commandNICK};
+	funptr		f[] = {&Server::commandPASS, &Server::commandNICK, NULL, NULL, NULL, &Server::commandJOIN};
 
 	if (check_command(mes) == 0)
 		(serv.*f[0])(*this, mes);
 	else if (check_command(mes) == 1)
 		(serv.*f[1])(*this, mes);
+	else if (check_command(mes) == 5)
+		(serv.*f[5])(*this, mes);
 }
 
 //TEST

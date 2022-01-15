@@ -34,6 +34,7 @@ void	Server::server_test_client()
 {
 	Client	test_client;
 
+	test_client.setRegistrationStatus();
 	test_client.client_test_loop(*this);
 }
 
