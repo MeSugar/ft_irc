@@ -27,6 +27,7 @@ class Server : public TemplateRun
 		std::vector<Client *>				_connectedClients;
 		std::vector<Channel *>				_channels;
 		std::map<std::string, std::string>	_operators;
+		std::vector<std::string>			_operatorHosts; // list of hostnames whose clinets are allowed to become IRC operator
 
 
 		Server(Server const &other);
@@ -39,8 +40,10 @@ class Server : public TemplateRun
 		bool	validateNickname(std::string const &nick); // check if nickname contains invalid characters
 		bool	comparePrefixAndNick(std::string const &prefix, Client const &client);
 		Client	*findClient(std::string const &nick, std::vector<Client *> &clients); // find a client using nickname
-		void	removeClient(Client *client, std::vector<Client *> &clients); // removes a client from a list
-		void	addClient(Client *client); // adds a client to both client lists 
+		void	removeClient(Client *client, std::vector<Client *> &clients); // removes a client from a given database
+		void	addClient(Client *client); // adds a client to clients database
+		int		checkOperatorList(std::string const &user, std::string const &pass); // checks whether _operators list contains given user and given pass matches
+		bool	checkHostnameList(std::string const &host); // checks whether server allowes to become an IRC operator being connected from the client's host 
 
 	public:
 		Server(int port, std::string const &password);
@@ -54,4 +57,6 @@ class Server : public TemplateRun
 		// commands
 		void	commandPASS(Client &client, Message &msg);
 		void	commandNICK(Client &client, Message &msg);
+		void	commandUSER(Client &client, Message &msg);
+		void	commandOPER(Client &client, Message &msg);
 };

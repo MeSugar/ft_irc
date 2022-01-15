@@ -11,6 +11,7 @@ bool				Client::getRegistrationStatus() const { return this->_isRegistered; }
 std::string	const	&Client::getPassword() const { return this->_password; }
 std::string const	&Client::getNickname() const { return this->_nickname; }
 std::string const	&Client::getUsername() const { return this->_username; }
+std::string	const	&Client::getHostname() const { return this->_hostname; } 
 
 // setters
 void    Client::setPassword(std::string const &pass) { this->_password = pass; }
@@ -22,6 +23,19 @@ void	Client::setNickname(std::string const &nick)
 }
 
 void	Client::setRegistrationStatus() { this->_isRegistered = true; }
+void	Client::setOperatorStatus() { this->_isOperator = true; }
+
+void	Client::setUser(std::vector<std::string> &params)
+{
+	if (params.size() == 4)
+	{
+		this->_username = params[0];
+		this->_hostname = params[1];
+		if (params[3][0] == ':')
+			params[3].erase(params[3].begin());
+		this->_realname = params[3];
+	}
+}
 
 // parser utils
 int     Client::check_length(char* buf)

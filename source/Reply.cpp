@@ -63,7 +63,7 @@ std::string generateErrorReply(std::string const &from, int const errorCode,
 		case ERR_USERSDISABLED:
 			return (std::string(prefix + arg1 + " " + arg2 + " :USERS has been disabled\n"));
 		case ERR_NOTREGISTERED:
-			return (std::string(prefix + arg1 + " " + arg2 + " :You have not registered\n"));
+			return (std::string(prefix + arg1 + " " + arg2 + " :You have not registered. Use PASS => NICK => USER commands\n"));
 		case ERR_NEEDMOREPARAMS:
 			return (std::string(prefix + arg1 + " " + arg2 + " :Not enough parameters\n"));
 		case ERR_ALREADYREGISTRED:
@@ -98,6 +98,8 @@ std::string generateErrorReply(std::string const &from, int const errorCode,
 			return (std::string(prefix + arg1 + " " + arg2 + " :Unknown MODE flag\n"));
 		case ERR_USERSDONTMATCH:
 			return (std::string(prefix + arg1 + " " + arg2 + " :Cant change mode for other users\n"));
+		case ERR_WRONGUSERNAME:
+			return (std::string(prefix + arg1 + " " + arg2 + " :Wrong user\n"));
 		default:
 			return (std::string(prefix + arg1 + " " + arg2 + " :Something bad happend, but we really don't know\n"));
 	}

@@ -1,12 +1,12 @@
 #include "../include/Server.hpp"
 
 Server::Server(int port, std::string const &password) : TemplateRun(port, password)
-// : _port(port), _password(password), _servername("Nasha Iro4ka 1.0")
 {
-	this->port = _port;
+	this->_port = port;
 	this->_password = password;
-	this->_servername = "Nash Iro4ka 1.0";
-	// Server::TemplateRun(_port, _password);
+	this->_servername = "Nasha Iro4ka 1.0";
+	this->_operatorHosts.push_back("host");
+	this->_operators.insert(std::pair<std::string, std::string>("admin", "admin"));
 	this->parseMOTD();
 }
 
@@ -87,10 +87,33 @@ void	Server::removeClient(Client *client, std::vector<Client *> &clients)
 
 void	Server::addClient(Client *client)
 {
-	client->setRegistrationStatus();
-	this->_clients.push_back(client);
-	this->_connectedClients.push_back(client);
-	this->sendMOTD();
+	if (!client->getRegistrationStatus() && client->getPassword() == this->_password
+			&& !client->getNickname().empty() && !client->getUsername().empty())
+	{
+		client->setRegistrationStatus();
+		this->_clients.push_back(client);
+		this->_connectedClients.push_back(client);
+		this->sendMOTD();
+	}
+}
+
+int		Server::checkOperatorList(std::string const &user, std::string const &pass)
+{
+	std::map<std::string, std::string>::iterator it = this->_operators.find(user);
+	if (it == _operators.end())
+		return ERR_WRONGUSERNAME;
+	else if (it->second != pass)
+		return ERR_PASSWDMISMATCH;
+	else
+		return 0;
+}
+
+bool	Server::checkHostnameList(std::string const &host)
+{
+	for (std::vector<std::string>::iterator it = this->_operatorHosts.begin(); it != this->_operatorHosts.end(); it++)
+		if ((*it) == host)
+			return true;
+	return false;
 }
 
 // connection managment
@@ -150,9 +173,9 @@ void	Server::commandPASS(Client &client, Message &msg)
 		if (client.getRegistrationStatus())
 			this->sendReply(generateErrorReply(this->_servername, ERR_ALREADYREGISTRED));
 		else if (msg.params.empty())
-			this->sendReply(generateErrorReply(this->_servername, ERR_NEEDMOREPARAMS, "PASS"));
+			this->sendReply(generateErrorReply(this->_servername, ERR_NEEDMOREPARAMS, "", "PASS"));
 		else if (msg.params[0] != this->_password || msg.params.size() > 1)
-			this->sendReply(generateErrorReply(this->_servername, ERR_PASSWDMISMATCH, "PASS"));
+			this->sendReply(generateErrorReply(this->_servername, ERR_PASSWDMISMATCH, "", "PASS"));
 		else
 			client.setPassword(msg.params[0]);
 	}
@@ -163,7 +186,7 @@ void	Server::commandNICK(Client &client, Message &msg)
 	if ((msg.prefix.empty() || this->comparePrefixAndNick(msg.prefix, client)) && !client.getPassword().empty())
 	{
 		if (msg.params.empty())
-			this->sendReply(generateErrorReply(this->_servername, ERR_NONICKNAMEGIVEN, client.getNickname()));
+			this->sendReply(generateErrorReply(this->_servername, ERR_NONICKNAMEGIVEN, client.getNickname(), "NICK"));
 		else if (msg.params.size() != 1 || !this->validateNickname(msg.params[0]))
 			this->sendReply(generateErrorReply(this->_servername, ERR_ERRONEUSNICKNAME, client.getNickname(), msg.params[0]));
 		else if (this->findClient(msg.params[0], this->_connectedClients))
@@ -174,8 +197,43 @@ void	Server::commandNICK(Client &client, Message &msg)
 			if (tmp != NULL)
 				removeClient(tmp, this->_clients);
 			client.setNickname(msg.params[0]);
-			if (!client.getRegistrationStatus() && !client.getUsername().empty())
-				this->addClient(&client);
+			this->addClient(&client);
+		}
+	}
+}
+
+void	Server::commandUSER(Client &client, Message &msg)
+{
+	if (msg.prefix.empty() && !client.getPassword().empty())
+	{
+		if (client.getRegistrationStatus())
+			this->sendReply(generateErrorReply(this->_servername, ERR_ALREADYREGISTRED, client.getNickname()));
+		else if (msg.params.size() < 4)
+			this->sendReply(generateErrorReply(this->_servername, ERR_NEEDMOREPARAMS, client.getNickname(), "USER"));
+		else
+		{
+			client.setUser(msg.params);
+			this->addClient(&client);
+		}
+	}
+}
+
+void	Server::commandOPER(Client &client, Message &msg)
+{
+	if (msg.prefix.empty() || this->comparePrefixAndNick(msg.prefix, client))
+	{
+		if (msg.params.size() < 4)
+			this->sendReply(generateErrorReply(this->_servername, ERR_NEEDMOREPARAMS, client.getNickname(), "OPER"));
+		else if (msg.params.size() == 2 && this->checkOperatorList(msg.params[0], msg.params[1]) == ERR_WRONGUSERNAME)
+			this->sendReply(generateErrorReply(this->_servername, ERR_WRONGUSERNAME, client.getNickname(), "OPER"));
+		else if (msg.params.size() == 2 && this->checkOperatorList(msg.params[0], msg.params[1]) == ERR_PASSWDMISMATCH)
+			this->sendReply(generateErrorReply(this->_servername, ERR_PASSWDMISMATCH, client.getNickname(), "OPER"));
+		else if (!this->checkHostnameList(client.getHostname()))
+			this->sendReply(generateErrorReply(this->_servername, ERR_NOOPERHOST, client.getNickname(), "OPER"));
+		else
+		{
+			client.setOperatorStatus();
+			this->sendReply(generateNormalReply(this->_servername, RPL_YOUREOPER, client.getNickname(), "OPER"));
 		}
 	}
 }
