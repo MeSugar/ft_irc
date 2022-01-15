@@ -11,24 +11,26 @@
 
 class Client;
 class Channel;
+class Server;
 struct Message;
+
+typedef std::map<std::string, void (Server::*)(Client &, Message &)> CommandsMap;
 
 class Server : public TemplateRun
 {
 	private:
-		int									_port;
-		std::string							_password;
-		int									_serverSock;
-		std::string							_servername;
-		std::vector<std::string>			_MOTD; //rfc 8.5
+		int										_port;
+		std::string								_password;
+		int										_serverSock;
+		std::string								_servername;
+		std::vector<std::string>				_MOTD; //rfc 8.5
 
-
-		std::vector<Client *>				_clients;
-		std::vector<Client *>				_connectedClients;
-		std::vector<Channel *>				_channels;
-		std::map<std::string, std::string>	_operators;
-		std::vector<std::string>			_operatorHosts; // list of hostnames whose clinets are allowed to become IRC operator
-
+		std::vector<Client *>					_clients;
+		std::vector<Client *>					_connectedClients;
+		std::vector<Channel *>					_channels;
+		std::map<std::string, std::string>		_operators;
+		std::vector<std::string>				_operatorHosts; // list of hostnames whose clinets are allowed to become IRC operator
+		CommandsMap								_commands; //list of pairs "command_name->pointer_to_command_method"
 
 		Server(Server const &other);
 		Server &operator=(Server const &other);
@@ -52,9 +54,12 @@ class Server : public TemplateRun
 		// connection managment
 		virtual int run();
         virtual int loop();
+		std::string	_recv(int sockfd);
         virtual int chat(int fdsock);
 
 		// commands
+		void	commandHandler(Client &client, Message &msg);
+		void	commandProcessor(Client &client, Message &msg);
 		void	commandPASS(Client &client, Message &msg);
 		void	commandNICK(Client &client, Message &msg);
 		void	commandUSER(Client &client, Message &msg);
