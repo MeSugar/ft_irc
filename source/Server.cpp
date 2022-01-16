@@ -116,7 +116,7 @@ bool	Server::checkHostnameList(std::string const &host)
 	return false;
 }
 
-int Server::chat(int sockfd) {
+int Server::_recv(int sockfd) {
 	std::string msg;
 	char buff[100];
 	int cntBytes;
@@ -133,6 +133,28 @@ int Server::chat(int sockfd) {
 		msg = msg.substr(0, 510) + "\r\n";
 	while (msg.find("\r\n") != std::string::npos)
 		msg.replace(msg.find("\r\n"), 2, "\n");
+	this->_message = msg;
+	return (0);
+}
+
+int Server::_handler(std::string msg) {
+	std::string newMsg;
+	// check connection
+	// if !connection {check command for connection}
+	// else {other command}
+	if (msg.find("Hello") != std::string::npos) {
+		newMsg = "world!";
+		send(this->s->getConnfd(), newMsg.c_str(), newMsg.length(), 0);
+	}
+	return (0);
+}
+
+int Server::chat(int sockfd) {
+	while (true) {
+		if (this->_recv(sockfd) == 0) {
+			this->_handler(this->_message);
+		}
+	}
 	return (0);
 }
 
@@ -144,23 +166,37 @@ int Server::run()
 	this->s->_linsten(5);
 	this->s->_accept();
 	this->chat(this->s->getConnfd());
-	close(this->s->getSockfd());
+	// close(this->s->getSockfd());
 	return (0);
 }
 
 int Server::loop()
 {
-	struct timeval tv;
-	fd_set readfds;
+	struct pollfd fds[2];
+	fds[0].fd = sock1;
+	fds[0].events = POLLIN;
+	
+	// а от sock2 - исходящих
+	fds[1].fd = sock2;
+	fds[1].events = POLLOUT;
+	
+	// ждём до 10 секунд
+	int ret = poll( &fds, 2, 10000 );
+	// проверяем успешность вызова
+	if ( ret == -1 )
+		// ошибка
+	else if ( ret == 0 )
+		// таймаут, событий не произошло
+	else
+	{
+		// обнаружили событие, обнулим revents чтобы можно было переиспользовать структуру
+		if ( pfd[0].revents & POLLIN )
+			pfd[0].revents = 0;
+			// обработка входных данных от sock1
 
-	tv.tv_sec = 2;
-	tv.tv_usec = 500000;
-	FD_ZERO(&readfds);
-	for (;;) {
-		this->run();
-		FD_SET(this->s->getConnfd(), &readfds);
-		select(this->s->getConnfd(), &readfds, NULL, NULL, &tv);
-	}
+		if ( pfd[1].revents & POLLOUT )
+			pfd[1].revents = 0;
+			// обработка исходящих данных от sock2
 }
 
 // commands

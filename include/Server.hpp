@@ -29,6 +29,9 @@ class Server : public TemplateRun
 		std::map<std::string, std::string>	_operators;
 		std::vector<std::string>			_operatorHosts; // list of hostnames whose clinets are allowed to become IRC operator
 
+		std::string							_message;
+		std::vector<struct pollfd>			_userfds;
+
 
 		Server(Server const &other);
 		Server &operator=(Server const &other);
@@ -53,6 +56,8 @@ class Server : public TemplateRun
 		virtual int run();
         virtual int loop();
         virtual int chat(int fdsock);
+		int _recv(int sockfd);
+		int _handler(std::string msg);
 
 		// commands
 		void	commandPASS(Client &client, Message &msg);

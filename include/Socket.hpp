@@ -19,7 +19,7 @@ class Socket {
         int         sockfd;
         int         connfd;
         int         port;
-        // char        buff[MAX];
+        // std::string msg;
 		std::string	pass;
         std::string host;
         struct addrinfo *res;
