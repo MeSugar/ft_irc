@@ -206,9 +206,6 @@ void	Client::client_test_loop(Server& serv)
 	{
 		temp += "\r\n";
 		mes = parse(temp.c_str());
-		std::cout << "prefix: " << mes.prefix << std::endl << "command: " << mes.command << std::endl << "params: " << std::endl;
-		for (std::vector<std::string>::iterator it = mes.params.begin(); it != mes.params.end(); it++)
-			std::cout << *it << std::endl;
 		command_handle(mes, serv);
 	}
 }

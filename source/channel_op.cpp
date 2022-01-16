@@ -172,6 +172,7 @@ void	Server::commandPART(Client &client, Message &msg)
 				continue;
 			}
 			channel->remove_member(&client);
+			client.remove_channel(channel);
 			if (channel->empty())
 				remove_channel(channel);
 		}

@@ -85,7 +85,6 @@ void	Channel::remove_member(Client* client)
 			_channelOperators.erase(it);
 			break;
 		}
-	client->remove_channel(this);
 }
 
 //getters
