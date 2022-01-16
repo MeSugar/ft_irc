@@ -7,14 +7,34 @@ Server::Server(int port, std::string const &password) : TemplateRun(port, passwo
 	this->_servername = "Nasha Iro4ka 1.0";
 	this->_operatorHosts.push_back("host");
 	this->_operators.insert(std::pair<std::string, std::string>("admin", "admin"));
+	this->_commands.insert(std::make_pair("PASS", &Server::commandPASS));
+	this->_commands.insert(std::make_pair("NICK", &Server::commandNICK));
+	this->_commands.insert(std::make_pair("USER", &Server::commandUSER));
+	this->_commands.insert(std::make_pair("OPER", &Server::commandOPER));
+	// this->_commands.insert(std::make_pair("QUIT", &Server::commandQUIT));
+	// this->_commands.insert(std::make_pair("JOIN", &Server::commandJOIN));
+	// this->_commands.insert(std::make_pair("PART", &Server::commandPART));
+	// this->_commands.insert(std::make_pair("MODE", &Server::commandMODE));
+	// this->_commands.insert(std::make_pair("TOPIC", &Server::commandTOPIC));
+	// this->_commands.insert(std::make_pair("NAMES", &Server::commandNAMES));
+	// this->_commands.insert(std::make_pair("LIST", &Server::commandLIST));
+	// this->_commands.insert(std::make_pair("INVITE", &Server::commandINVITE));
+	// this->_commands.insert(std::make_pair("LICK", &Server::commandLICK));
+	// this->_commands.insert(std::make_pair("PRIVMSG", &Server::commandPRIVMSG));
+	// this->_commands.insert(std::make_pair("NOTICE", &Server::commandNOTICE));
+	// this->_commands.insert(std::make_pair("KILL", &Server::commandKILL));
+	// this->_commands.insert(std::make_pair("PING", &Server::commandPING));
+	// this->_commands.insert(std::make_pair("PONG", &Server::commandPONG));
+	// this->_commands.insert(std::make_pair("REHASH", &Server::commandREHASH));
+	// this->_commands.insert(std::make_pair("RESTART", &Server::commandRESTART));
 	this->parseMOTD();
 }
 
 Server::~Server() {}
 
-// utils
-void    Server::parseMOTD()
+std::string	Server::_recv(int sockfd)
 {
+<<<<<<< HEAD
 	std::ifstream	file("files/MOTD");
 	std::string		str;
 	while (file.is_open() && getline(file, str))
@@ -154,6 +174,9 @@ int Server::chat(int sockfd) {
 		if (this->_recv(sockfd) == 0) {
 			this->_handler(this->_message);
 		}
+		// this->commandHandler(client, client.parse(str)); нужно передать объект клиента или создавать его в этой функции
+		// тут не отправляем ответ, этим занимаются команды (у объекта клиента хранится в который его отправляем sockfd)
+		// send(sockfd, str.c_str(), str.length(), 0);
 	}
 	return (0);
 }
@@ -198,77 +221,3 @@ int Server::loop()
 			pfd[1].revents = 0;
 			// обработка исходящих данных от sock2
 }
-
-// commands
-void	Server::commandPASS(Client &client, Message &msg)
-{
-	if (msg.prefix.empty() && client.getNickname().empty() && client.getUsername().empty())
-	{
-		if (client.getRegistrationStatus())
-			this->sendReply(generateErrorReply(this->_servername, ERR_ALREADYREGISTRED));
-		else if (msg.params.empty())
-			this->sendReply(generateErrorReply(this->_servername, ERR_NEEDMOREPARAMS, "", "PASS"));
-		else if (msg.params[0] != this->_password || msg.params.size() > 1)
-			this->sendReply(generateErrorReply(this->_servername, ERR_PASSWDMISMATCH, "", "PASS"));
-		else
-			client.setPassword(msg.params[0]);
-	}
-}
-
-void	Server::commandNICK(Client &client, Message &msg)
-{
-	if ((msg.prefix.empty() || this->comparePrefixAndNick(msg.prefix, client)) && !client.getPassword().empty())
-	{
-		if (msg.params.empty())
-			this->sendReply(generateErrorReply(this->_servername, ERR_NONICKNAMEGIVEN, client.getNickname(), "NICK"));
-		else if (msg.params.size() != 1 || !this->validateNickname(msg.params[0]))
-			this->sendReply(generateErrorReply(this->_servername, ERR_ERRONEUSNICKNAME, client.getNickname(), msg.params[0]));
-		else if (this->findClient(msg.params[0], this->_connectedClients))
-			this->sendReply(generateErrorReply(this->_servername, ERR_NICKNAMEINUSE, client.getNickname(), msg.params[0]));
-		else
-		{
-			Client *tmp = this->findClient(msg.params[0], this->_clients);
-			if (tmp != NULL)
-				removeClient(tmp, this->_clients);
-			client.setNickname(msg.params[0]);
-			this->addClient(&client);
-		}
-	}
-}
-
-void	Server::commandUSER(Client &client, Message &msg)
-{
-	if (msg.prefix.empty() && !client.getPassword().empty())
-	{
-		if (client.getRegistrationStatus())
-			this->sendReply(generateErrorReply(this->_servername, ERR_ALREADYREGISTRED, client.getNickname()));
-		else if (msg.params.size() < 4)
-			this->sendReply(generateErrorReply(this->_servername, ERR_NEEDMOREPARAMS, client.getNickname(), "USER"));
-		else
-		{
-			client.setUser(msg.params);
-			this->addClient(&client);
-		}
-	}
-}
-
-void	Server::commandOPER(Client &client, Message &msg)
-{
-	if (msg.prefix.empty() || this->comparePrefixAndNick(msg.prefix, client))
-	{
-		if (msg.params.size() < 4)
-			this->sendReply(generateErrorReply(this->_servername, ERR_NEEDMOREPARAMS, client.getNickname(), "OPER"));
-		else if (msg.params.size() == 2 && this->checkOperatorList(msg.params[0], msg.params[1]) == ERR_WRONGUSERNAME)
-			this->sendReply(generateErrorReply(this->_servername, ERR_WRONGUSERNAME, client.getNickname(), "OPER"));
-		else if (msg.params.size() == 2 && this->checkOperatorList(msg.params[0], msg.params[1]) == ERR_PASSWDMISMATCH)
-			this->sendReply(generateErrorReply(this->_servername, ERR_PASSWDMISMATCH, client.getNickname(), "OPER"));
-		else if (!this->checkHostnameList(client.getHostname()))
-			this->sendReply(generateErrorReply(this->_servername, ERR_NOOPERHOST, client.getNickname(), "OPER"));
-		else
-		{
-			client.setOperatorStatus();
-			this->sendReply(generateNormalReply(this->_servername, RPL_YOUREOPER, client.getNickname(), "OPER"));
-		}
-	}
-}
-
