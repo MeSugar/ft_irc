@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <sstream>
 #include <poll.h>
+#include <arpa/inet.h>
 
 #define MAX 80
 

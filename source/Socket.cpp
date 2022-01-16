@@ -103,6 +103,8 @@ int Socket::_accept() {
     } else {
         printf("server accept the client...\n");
     }
+    char	host[INET_ADDRSTRLEN];
+	inet_ntop(AF_INET, &(this->res->ai_addr), host, INET_ADDRSTRLEN);
     return (0);
 }
 

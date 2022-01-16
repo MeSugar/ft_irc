@@ -1,6 +1,8 @@
 #pragma once
 
 #include <iostream>
+#include <poll.h>
+#include <arpa/inet.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -32,8 +34,8 @@ class Server : public TemplateRun
 		std::vector<std::string>				_operatorHosts; // list of hostnames whose clinets are allowed to become IRC operator
 		CommandsMap								_commands; //list of pairs "command_name->pointer_to_command_method"
 
-		std::string							_message;
-		std::vector<struct pollfd>			_userfds;
+		std::string								_message;
+		std::vector<struct pollfd>				_userfds;
 
 		Server(Server const &other);
 		Server &operator=(Server const &other);
@@ -59,7 +61,8 @@ class Server : public TemplateRun
         virtual int loop();
         virtual int chat(int fdsock);
 		int _recv(int sockfd);
-		int _handler(std::string msg);
+		int _creatpoll(int sockfd);
+		int _handler(std::string msg, int sockfd);
 
 		// commands
 		void	commandHandler(Client &client, Message &msg);
