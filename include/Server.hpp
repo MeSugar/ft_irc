@@ -57,7 +57,6 @@ class Server : public TemplateRun
 		// connection managment
 		virtual int run();
         virtual int loop();
-		std::string	_recv(int sockfd);
         virtual int chat(int fdsock);
 		int _recv(int sockfd);
 		int _handler(std::string msg);

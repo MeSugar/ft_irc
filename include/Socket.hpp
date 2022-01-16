@@ -11,6 +11,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sstream>
+#include <poll.h>
 
 #define MAX 80
 

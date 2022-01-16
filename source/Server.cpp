@@ -32,15 +32,15 @@ Server::Server(int port, std::string const &password) : TemplateRun(port, passwo
 
 Server::~Server() {}
 
-std::string	Server::_recv(int sockfd)
-{
-<<<<<<< HEAD
-	std::ifstream	file("files/MOTD");
-	std::string		str;
-	while (file.is_open() && getline(file, str))
-		this->_MOTD.push_back(str);
-	file.close();
-}
+// std::string	Server::_recv(int sockfd)
+// {
+// <<<<<<< HEAD
+// 	std::ifstream	file("files/MOTD");
+// 	std::string		str;
+// 	while (file.is_open() && getline(file, str))
+// 		this->_MOTD.push_back(str);
+// 	file.close();
+// }
 
 void	Server::sendMOTD()
 {
@@ -220,4 +220,6 @@ int Server::loop()
 		if ( pfd[1].revents & POLLOUT )
 			pfd[1].revents = 0;
 			// обработка исходящих данных от sock2
+	}
+	return (0);
 }
