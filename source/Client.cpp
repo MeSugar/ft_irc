@@ -50,6 +50,16 @@ void	Client::add_channel(Channel* channel)
 	_channels.push_back(channel);
 }
 
+void	Client::remove_channel(Channel *channel)
+{
+	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++)
+		if (*it == channel)
+		{	
+			_channels.erase(it);
+			break;
+		}
+}
+
 bool	Client::under_channels_limit() const
 {
 	if (_channels.size() < _channelsLimit)
@@ -178,16 +188,12 @@ Message		Client::parse(const char* buf)
 void	Client::command_handle(Message& mes, Server& serv)
 {
 	typedef		void (Server::*funptr)(Client&, Message&);
-	funptr		f[] = {&Server::commandPASS, &Server::commandNICK, NULL, NULL, NULL, &Server::commandJOIN};
+	funptr		f[] = {&Server::commandPASS, &Server::commandNICK, NULL, NULL, NULL, &Server::commandJOIN, &Server::commandPART};
 
-	//int	i = check_command(mes)
+	int	i = check_command(mes);
 	//(serv.*f[i])(*this, mes);
-	if (check_command(mes) == 0)
-		(serv.*f[0])(*this, mes);
-	else if (check_command(mes) == 1)
-		(serv.*f[1])(*this, mes);
-	else if (check_command(mes) == 5)
-		(serv.*f[5])(*this, mes);
+	if (i == 0 || i == 1 || i == 5 || i == 6)
+		(serv.*f[i])(*this, mes);
 }
 
 //TEST

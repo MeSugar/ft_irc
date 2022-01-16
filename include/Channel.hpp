@@ -31,8 +31,10 @@ class Channel
 		bool				check_key(std::string key) const;
 		bool				under_user_limit() const;
 		bool				have_member(const Client& client);
+		bool				empty() const;
 
 		void				add_member(Client* client);
+		void				remove_member(Client* client);
 
 		//getters
 		const std::string&	get_name() const;

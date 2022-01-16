@@ -49,6 +49,7 @@ class Server : public TemplateRun
 
 		Channel*	find_channel(const std::string& name); // find a channel using nickname
 		Channel*	add_channel(std::string name, Client& first); //allocates and adds channel, with the first client as its operator
+		void		remove_channel(Channel *to_remove); //removes empty channel from the server
 		bool		check_channel_name(const std::string& str) const; //checks if the name is valid
 		void 		divide_comma(std::vector<std::string> &to, std::string str); //splits a given string with comma as a delimiter
 
@@ -74,4 +75,5 @@ class Server : public TemplateRun
 		void	commandUSER(Client &client, Message &msg);
 		void	commandOPER(Client &client, Message &msg);
 		void	commandJOIN(Client &client, Message &msg);
+		void	commandPART(Client &client, Message &msg);
 };

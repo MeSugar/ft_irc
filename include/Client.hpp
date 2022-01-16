@@ -68,6 +68,7 @@ class Client
 		void	client_test_loop(Server& serv);
 
 		void	add_channel(Channel* channel);
+		void	remove_channel(Channel *channel);
 
 		bool	check_invitation(const std::string&	ch_name);
 		bool	under_channels_limit() const;

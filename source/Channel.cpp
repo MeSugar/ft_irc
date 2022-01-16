@@ -60,10 +60,32 @@ bool	Channel::have_member(const Client& client)
 	return (false);
 }
 
+bool	Channel::empty() const
+{
+	return (_members.empty());
+}
+
 void	Channel::add_member(Client* client)
 {
 	_members.push_back(client);
 	client->add_channel(this);
+}
+
+void	Channel::remove_member(Client* client)
+{
+	for (std::vector<Client *>::iterator it = _members.begin(); it != _members.end(); it++)
+		if (*it == client)
+		{	
+			_members.erase(it);
+			break;
+		}
+	for (std::vector<Client *>::iterator it = _channelOperators.begin(); it != _channelOperators.end(); it++)
+		if (*it == client)
+		{	
+			_channelOperators.erase(it);
+			break;
+		}
+	client->remove_channel(this);
 }
 
 //getters

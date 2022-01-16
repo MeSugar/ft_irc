@@ -17,6 +17,17 @@ Channel*	Server::add_channel(std::string name, Client& first)
 	return (channel);
 }
 
+void	Server::remove_channel(Channel *to_remove)
+{
+	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++)
+		if (*it == to_remove)
+		{
+			delete (*it);
+			_channels.erase(it);
+			break;
+		}
+}
+
 Channel*	Server::find_channel(const std::string &name)
 {
 	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++)
@@ -133,6 +144,41 @@ void Server::commandJOIN(Client& client, Message& msg)
 			Message  mes;
 			mes.params.push_back(*it);
 			//commandNAMES(client, mes);
+		}
+	}
+}
+
+void	Server::commandPART(Client &client, Message &msg)
+{
+	if ((!msg.prefix.empty() && !comparePrefixAndNick(msg.prefix, client)) || !client.getRegistrationStatus())
+		return ;
+	if (msg.params.size() > 1)
+		return ;
+	if (msg.params.empty())
+	{	
+		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, "PART"));
+		return ;
+	}
+	std::vector<std::string>	channels;
+	divide_comma(channels, msg.params[0]);
+	Channel*	channel;
+	for (std::vector<std::string>::iterator it = channels.begin(); it != channels.end(); it++)
+	{
+		if ((channel = find_channel(*it)))
+		{
+			if (!(channel->have_member(client)))
+			{	
+				sendReply(generateErrorReply(_servername, ERR_NOTONCHANNEL, *it));
+				continue;
+			}
+			channel->remove_member(&client);
+			if (channel->empty())
+				remove_channel(channel);
+		}
+		else
+		{	
+			sendReply(generateErrorReply(_servername, ERR_NOSUCHCHANNEL, *it));
+			continue;
 		}
 	}
 }
