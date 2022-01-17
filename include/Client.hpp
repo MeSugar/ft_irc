@@ -19,6 +19,7 @@ struct Message
 class Client
 {
 	private:
+		int							_clientFd;
 		bool						_isRegistered;
 		bool						_isOperator;
 		std::string					_password;
@@ -38,17 +39,18 @@ class Client
 		Client &operator=(Client const &other);
 
 		// parser utils
-		int		check_length(char* buf);
-		int		get_prefix(char* buf, Message& res);
-		void    get_command(char *buf, Message& res, int& i);
-		void	get_params(char *buf, Message& res, int& i);
+		int		check_length(const char* buf);
+		int		get_prefix(const char* buf, Message& res);
+		void    get_command(const char *buf, Message& res, int& i);
+		void	get_params(const char *buf, Message& res, int& i);
 		int		check_command(Message& mes);
 
 	public:
-		Client();
+		Client(int sockfd);
 		virtual ~Client();
 
 		// getters
+		int					getClientFd() const;
 		bool				getRegistrationStatus() const;
 		std::string	const	&getPassword() const;
 		std::string const	&getNickname() const;
@@ -64,5 +66,5 @@ class Client
 		void	setOperatorStatus();
 
 		// parser
-		Message	parse(char* buf);
+		Message	parse(const char* buf);
 };

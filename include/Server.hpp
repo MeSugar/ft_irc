@@ -42,8 +42,8 @@ class Server : public TemplateRun
 		
 		// utils
 		void	parseMOTD(); // get message of the day
-		void	sendMOTD();
-		void	sendReply(std::string const &reply) const; // reply management (just for testing, need to be rewritten to send reply to user socket)
+		void	sendMOTD(Client &client);
+		void	sendReply(Client &client, std::string const &reply) const; // sends reply to clientfd
 		bool	validateNickname(std::string const &nick); // check if nickname contains invalid characters
 		bool	comparePrefixAndNick(std::string const &prefix, Client const &client);
 		Client	*findClient(std::string const &nick, std::vector<Client *> &clients); // find a client using nickname
@@ -58,7 +58,7 @@ class Server : public TemplateRun
 
 		// connection managment
 		virtual int run();
-        virtual int loop();
+        // virtual int loop();
         virtual int chat(int fdsock);
 		int _recv(int sockfd);
 		int _creatpoll(int sockfd);
