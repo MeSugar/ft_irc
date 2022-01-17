@@ -9,15 +9,16 @@ void    Server::parseMOTD()
 	file.close();
 }
 
-void	Server::sendMOTD()
+void	Server::sendMOTD(Client &client)
 {
 	for (std::vector<std::string>::iterator it = this->_MOTD.begin(); it != this->_MOTD.end(); it++)
-		this->sendReply(*it);
+		this->sendReply(client, *it);
+	this->sendReply(client, "\n");
 }
 
-void	Server::sendReply(std::string const &reply) const
+void	Server::sendReply(Client &client, std::string const &reply) const
 {
-	std::cout << reply << std::endl;
+	send(client.getClientFd(), reply.c_str(), reply.length(), 0);
 }
 
 bool	Server::validateNickname(std::string const &nick)
@@ -28,10 +29,10 @@ bool	Server::validateNickname(std::string const &nick)
 		size_t i = 0;
 		while (i < len)
 		{
-			if (!std::isalnum(nick[i]) || nick[i] != '-'
-				|| nick[i] != '[' || nick[i] != ']'
-				|| nick[i] != '{' || nick[i] != '}'
-				|| nick[i] != '^' || nick[i] != '\\')
+			if (!std::isalnum(nick[i]) && nick[i] != '-'
+				&& nick[i] != '[' && nick[i] != ']'
+				&& nick[i] != '{' && nick[i] != '}'
+				&& nick[i] != '^' && nick[i] != '\\')
 				return false;
 			i++;
 		}
@@ -80,7 +81,7 @@ void	Server::addClient(Client *client)
 		client->setRegistrationStatus();
 		this->_clients.push_back(client);
 		this->_connectedClients.push_back(client);
-		this->sendMOTD();
+		this->sendMOTD(*client);
 	}
 }
 

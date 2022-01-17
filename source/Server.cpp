@@ -57,34 +57,46 @@ int Server::_recv(int sockfd) {
 	}
 	if (msg.length() > 512)
 		msg = msg.substr(0, 510) + "\r\n";
-	while (msg.find("\r\n") != std::string::npos)
-		msg.replace(msg.find("\r\n"), 2, "\n");
+	else
+	{
+		while (msg.find("\n") != std::string::npos)
+			msg.replace(msg.find("\n"), 1, "\r");
+		msg += "\n";
+	}
 	this->_message = msg;
 	return (0);
 }
 
-int Server::_handler(std::string msg, int sockfd) {
-	std::string newMsg;
-	std::cout << "sockfd: " << sockfd << std::endl;
-	// check connection
-	// if !connection {check command for connection}
-	// else {other command}
-	if (msg.find("Hello") != std::string::npos) {
-		newMsg = "world!";
-		send(this->s->getConnfd(), newMsg.c_str(), newMsg.length(), 0);
-	}
-	return (0);
-}
+// int Server::_handler(std::string msg, int sockfd) {
+// 	std::string newMsg;
+// 	// std::cout << "sockfd: " << sockfd << std::endl;
+// 	int sockfd_ = sockfd;
+// 	sockfd_++;
+// 	// check connection
+// 	// if !connection {check command for connection}
+// 	// else {other command}
+// 	if (msg.find("Hello") != std::string::npos) {
+// 		newMsg = "world!";
+// 		send(this->s->getConnfd(), newMsg.c_str(), newMsg.length(), 0);
+// 	}
+// 	return (0);
+// }
 
-int Server::chat(int sockfd) {
-	// while (true) {
-		if (this->_recv(sockfd) == 0) {
-			this->_handler(this->_message, sockfd);
+int Server::chat(int sockfd)
+{
+	Client client(sockfd);
+	Message msg; 
+	while (true)
+	{
+		if (this->_recv(sockfd) == 0)
+		{
+			msg = client.parse(this->_message.c_str());
+			this->commandHandler(client, msg);
 		}
 		// this->commandHandler(client, client.parse(str)); нужно передать объект клиента или создавать его в этой функции
 		// тут не отправляем ответ, этим занимаются команды (у объекта клиента хранится в который его отправляем sockfd)
 		// send(sockfd, str.c_str(), str.length(), 0);
-	// }
+	}
 	return (0);
 }
 
@@ -94,11 +106,11 @@ int Server::run()
 	std::cout << "Main server: " << this->s->getSockfd() << std::endl;
 	this->s->_bind();
 	this->s->_linsten(5);
-	// this->s->_accept();
+	this->s->_accept();
 	// this->_creatpoll(this->s->getConnfd());
 	// this->_clients.push_back(new Client());
 	// this->s->getConnfd()
-	// this->chat(this->s->getConnfd());
+	this->chat(this->s->getConnfd());
 	// close(this->s->getSockfd());
 	return (0);
 }
@@ -134,50 +146,50 @@ int Server::run()
 // 	return (0);
 // }
 
-int Server::loop() {
-	this->run();
-	std::cout << "Size: " << this->_userfds.size() << std::endl;
-	// const id_t								timeout(2);
-	struct pollfd 			pfarr[10];
-	int i = 0;
-	while (true) {
-		this->s->_accept();
+// int Server::loop() {
+// 	this->run();
+// 	std::cout << "Size: " << this->_userfds.size() << std::endl;
+// 	// const id_t								timeout(2);
+// 	struct pollfd 			pfarr[10];
+// 	int i = 0;
+// 	while (true) {
+// 		this->s->_accept();
 
-		// struct pollfd pf;
-		// pf.fd = this->s->getConnfd();
-		// pf.events = POLLIN;
-		// pf.revents = 0;
-		std::cout << "fd: " << pfarr[i].fd << "\t" << pfarr[i].events << "\t" << pfarr[i].revents << std::endl;
-		this->_creatpoll(this->s->getConnfd());
-		pfarr[i] = this->_userfds[i];
-		// std::cout << "Connfd: " << this->s->getConnfd() << std::endl;
-		// std::cout << "Size: " << this->_userfds.size() << std::endl;
-		// std::cout << "Data[0]: " << this->_userfds[0].fd << "\t" << this->_userfds[0].events << std::endl;
-		// char	host[INET_ADDRSTRLEN];
-		// inet_ntop(AF_INET, &(this->s->res->ai_addr), host, INET_ADDRSTRLEN);
-		std::cout << "Vector userfds: \n";
-		for (std::vector<struct pollfd>::iterator it = this->_userfds.begin(); it != this->_userfds.end(); it++) {
-			std::cout << "\tfd: " << (*it).fd << "\tevent: " << (*it).events << std::endl;
-		}
-		this->_clients.push_back(new Client());
-		// std::vector<struct pollfd> fds = this->_userfds;
-		// fds.push_back((struct pollfd){0, 0, 0});
-		int ret =  poll((struct pollfd *)this->_userfds.data(), this->_userfds.size(), -1);
-		// int ret =  poll((struct pollfd *)&pfarr, 10, timeout);
-		if (ret == 0)
-			std::cout << "Error: timeout\n";
-		else if (ret != -1) {
-			std::cout << "Wow\n";
-			pfarr[i].events = POLLIN;
-			for (int it = 0; it < i + 1; it++) {
-				int a  = pfarr[it].revents & POLLIN;
-				std::cout << a << std::endl;
-				if (pfarr[it].revents & POLLIN) {
-					pfarr[it].revents = 0;
-					this->chat(pfarr[it].fd);
-				}
-			}
-		}
-		i++;
-	}
-}
+// 		// struct pollfd pf;
+// 		// pf.fd = this->s->getConnfd();
+// 		// pf.events = POLLIN;
+// 		// pf.revents = 0;
+// 		std::cout << "fd: " << pfarr[i].fd << "\t" << pfarr[i].events << "\t" << pfarr[i].revents << std::endl;
+// 		this->_creatpoll(this->s->getConnfd());
+// 		pfarr[i] = this->_userfds[i];
+// 		// std::cout << "Connfd: " << this->s->getConnfd() << std::endl;
+// 		// std::cout << "Size: " << this->_userfds.size() << std::endl;
+// 		// std::cout << "Data[0]: " << this->_userfds[0].fd << "\t" << this->_userfds[0].events << std::endl;
+// 		// char	host[INET_ADDRSTRLEN];
+// 		// inet_ntop(AF_INET, &(this->s->res->ai_addr), host, INET_ADDRSTRLEN);
+// 		std::cout << "Vector userfds: \n";
+// 		for (std::vector<struct pollfd>::iterator it = this->_userfds.begin(); it != this->_userfds.end(); it++) {
+// 			std::cout << "\tfd: " << (*it).fd << "\tevent: " << (*it).events << std::endl;
+// 		}
+// 		this->_clients.push_back(new Client());
+// 		// std::vector<struct pollfd> fds = this->_userfds;
+// 		// fds.push_back((struct pollfd){0, 0, 0});
+// 		int ret =  poll((struct pollfd *)this->_userfds.data(), this->_userfds.size(), -1);
+// 		// int ret =  poll((struct pollfd *)&pfarr, 10, timeout);
+// 		if (ret == 0)
+// 			std::cout << "Error: timeout\n";
+// 		else if (ret != -1) {
+// 			std::cout << "Wow\n";
+// 			pfarr[i].events = POLLIN;
+// 			for (int it = 0; it < i + 1; it++) {
+// 				int a  = pfarr[it].revents & POLLIN;
+// 				std::cout << a << std::endl;
+// 				if (pfarr[it].revents & POLLIN) {
+// 					pfarr[it].revents = 0;
+// 					this->chat(pfarr[it].fd);
+// 				}
+// 			}
+// 		}
+// 		i++;
+// 	}
+// }

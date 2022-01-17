@@ -1,12 +1,13 @@
 #include "../include/Client.hpp"
 
-Client::Client()
-: _isRegistered(false), _channelsLimit(10)
+Client::Client(int sockfd)
+: _clientFd(sockfd), _isRegistered(false), _channelsLimit(10)
 {}
 
 Client::~Client() {}
 
 // getters
+int					Client::getClientFd() const { return this->_clientFd; }
 bool				Client::getRegistrationStatus() const { return this->_isRegistered; }
 std::string	const	&Client::getPassword() const { return this->_password; }
 std::string const	&Client::getNickname() const { return this->_nickname; }
@@ -38,7 +39,7 @@ void	Client::setUser(std::vector<std::string> &params)
 }
 
 // parser utils
-int     Client::check_length(char* buf)
+int     Client::check_length(const char* buf)
 {
 	int	i;
 	
@@ -51,7 +52,7 @@ int     Client::check_length(char* buf)
 		return (0);
 }
 
-int		Client::get_prefix(char* buf, Message& res)
+int		Client::get_prefix(const char* buf, Message& res)
 {
 	int	i;
 	
@@ -65,17 +66,17 @@ int		Client::get_prefix(char* buf, Message& res)
 	return (i);
 }
 
-void	Client::get_command(char *buf, Message& res, int& i)
+void	Client::get_command(const char *buf, Message& res, int& i)
 {
 	int	start = i;
 
 	while (buf[i] != '\r' && buf[i] != ' ')
 		i++;
 	if (i - start > 0)
-		res.prefix.append(&buf[start], i - start);
+		res.command.append(&buf[start], i - start);
 }
 
-void	Client::get_params(char *buf, Message& res, int& i)
+void	Client::get_params(const char *buf, Message& res, int& i)
 {
 	int	start;
 	std::string	temp;
@@ -138,7 +139,7 @@ int		Client::check_command(Message& mes)
 }
 
 // parser
-Message		Client::parse(char* buf)
+Message		Client::parse(const char* buf)
 {
 	Message	res;
 	int		i;
