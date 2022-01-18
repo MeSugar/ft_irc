@@ -155,3 +155,35 @@ Message		Client::parse(const char* buf)
 		get_params(buf, res, i);
 	return (res);
 }
+
+
+// channel utils
+bool	Client::check_invitation(const std::string&	ch_name)
+{
+	for (std::vector<std::string>::iterator it = _channels_invited.begin(); it != _channels_invited.end(); it++)
+		if (*it == ch_name)
+			return (true);
+	return (false);
+}
+
+void	Client::add_channel(Channel* channel)
+{
+	_channels.push_back(channel);
+}
+
+void	Client::remove_channel(Channel *channel)
+{
+	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++)
+		if (*it == channel)
+		{	
+			_channels.erase(it);
+			break;
+		}
+}
+
+bool	Client::under_channels_limit() const
+{
+	if (_channels.size() < _channelsLimit)
+		return (true);
+	return (false);
+}

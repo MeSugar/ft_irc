@@ -52,6 +52,11 @@ class Server : public TemplateRun
 		int		checkOperatorList(std::string const &user, std::string const &pass); // checks whether _operators list contains given user and given pass matches
 		bool	checkHostnameList(std::string const &host); // checks whether server allowes to become an IRC operator being connected from the client's host 
 
+		Channel*	find_channel(const std::string& name); // find a channel using nickname
+		Channel*	add_channel(std::string name, Client& first); //allocates and adds channel, with the first client as its operator
+		void		remove_channel(Channel *to_remove); //removes empty channel from the server
+		bool		check_channel_name(const std::string& str) const; //checks if the name is valid
+		void 		divide_comma(std::vector<std::string> &to, std::string str); //splits a given string with comma as a delimiter
 	public:
 		Server(int port, std::string const &password);
 		~Server();
@@ -71,4 +76,6 @@ class Server : public TemplateRun
 		void	commandNICK(Client &client, Message &msg);
 		void	commandUSER(Client &client, Message &msg);
 		void	commandOPER(Client &client, Message &msg);
+		void	commandJOIN(Client &client, Message &msg);
+		void	commandPART(Client &client, Message &msg);
 };

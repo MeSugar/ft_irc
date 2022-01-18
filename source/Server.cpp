@@ -12,8 +12,8 @@ Server::Server(int port, std::string const &password) : TemplateRun(port, passwo
 	this->_commands.insert(std::make_pair("USER", &Server::commandUSER));
 	this->_commands.insert(std::make_pair("OPER", &Server::commandOPER));
 	// this->_commands.insert(std::make_pair("QUIT", &Server::commandQUIT));
-	// this->_commands.insert(std::make_pair("JOIN", &Server::commandJOIN));
-	// this->_commands.insert(std::make_pair("PART", &Server::commandPART));
+	this->_commands.insert(std::make_pair("JOIN", &Server::commandJOIN));
+	this->_commands.insert(std::make_pair("PART", &Server::commandPART));
 	// this->_commands.insert(std::make_pair("MODE", &Server::commandMODE));
 	// this->_commands.insert(std::make_pair("TOPIC", &Server::commandTOPIC));
 	// this->_commands.insert(std::make_pair("NAMES", &Server::commandNAMES));

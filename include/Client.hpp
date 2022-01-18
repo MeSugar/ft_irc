@@ -32,6 +32,7 @@ class Client
 		// Server const&				_server;
 		std::vector<Channel *>		_channels;
 		unsigned const				_channelsLimit;
+		std::vector<std::string>	_channels_invited;
 		
 		std::vector<std::string>	_nicknameHistory;
 
@@ -64,6 +65,13 @@ class Client
 
 		void	setRegistrationStatus();
 		void	setOperatorStatus();
+
+
+		void	add_channel(Channel* channel);
+		void	remove_channel(Channel *channel);
+
+		bool	check_invitation(const std::string&	ch_name);
+		bool	under_channels_limit() const;
 
 		// parser
 		Message	parse(const char* buf);
