@@ -61,6 +61,7 @@ class Client
 		// setters
 		void	setPassword(std::string const &pass);
 		void	setNickname(std::string const &nick);
+		void	setHostname(std::string const &hostname);
 		void	setUser(std::vector<std::string> &params);
 
 		void	setRegistrationStatus();
