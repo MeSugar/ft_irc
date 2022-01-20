@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cctype>
-#include <cstdlib>
 #include "TemplateRun.hpp"
 #include "Server.hpp"
 #include "Channel.hpp"

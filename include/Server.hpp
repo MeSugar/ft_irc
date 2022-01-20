@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <fstream>
+#include <cstdlib>
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "Reply.hpp"
@@ -52,6 +53,9 @@ class Server : public TemplateRun
 		void		remove_channel(Channel *to_remove); //removes empty channel from the server
 		bool		check_channel_name(const std::string& str) const; //checks if the name is valid
 		void 		divide_comma(std::vector<std::string> &to, std::string str); //splits a given string with comma as a delimiter
+		bool		check_channel_modes(const std::string& str, const Message& msg); //checks if the parameters of MODE command are valid
+
+		const std::string&	get_servername() const;
 
 	public:
 		Server(int port, std::string const &password);
@@ -67,6 +71,11 @@ class Server : public TemplateRun
 		std::string	_recv(int sockfd);
         virtual int chat(int fdsock);
 
+		//command utils
+		void	channel_mode(Client &client, Message &msg); //checks and iterates on channel mode string
+		void	user_mode(Client &client, Message &msg); //checks and iterates on user mode string
+		void	handle_channel_mode(char sign, char mode); //processes channel mode
+		
 		// commands
 		void	commandHandler(Client &client, Message &msg);
 		void	commandProcessor(Client &client, Message &msg);
@@ -76,4 +85,5 @@ class Server : public TemplateRun
 		void	commandOPER(Client &client, Message &msg);
 		void	commandJOIN(Client &client, Message &msg);
 		void	commandPART(Client &client, Message &msg);
+		void	commandMODE(Client &client, Message &msg);
 };

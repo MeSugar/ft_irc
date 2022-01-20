@@ -1,4 +1,7 @@
 #include "../include/Server.hpp"
+#include <climits>
+#include <cctype>
+#include <cerrno>
 
 //TEST
 void	Server::server_test_client()
@@ -9,9 +12,14 @@ void	Server::server_test_client()
 	test_client.client_test_loop(*this);
 }
 
+const Server::std::string&	get_servername() const
+{
+	return (_servername);
+}
+
 Channel*	Server::add_channel(std::string name, Client& first)
 {
-	Channel*	channel = new Channel(name, &first);
+	Channel*	channel = new Channel(this, name, &first);
 	
 	_channels.push_back(channel);
 	return (channel);
@@ -38,12 +46,12 @@ Channel*	Server::find_channel(const std::string &name)
 
 bool	Server::check_channel_name(const std::string& str) const
 {
-	if (str.empty())
+	if (str.size() < 2 || str.size() > 200)
 		return (false);
 	if (str[0] != '#' && str[0] != '&')
 		return (false);
 	for (size_t	i = 1; i < str.size(); i++)
-		if (str[i] == ' ' || str[i] == '\n' || str[i] == '\r' || str[i] == '\a')
+		if (str[i] == ' ' || str[i] == '\n' || str[i] == '\r' || str[i] == '\a' || str[i] == ',')
 			return (false);
 	return (true);
 }
@@ -175,6 +183,8 @@ void	Server::commandPART(Client &client, Message &msg)
 			client.remove_channel(channel);
 			if (channel->empty())
 				remove_channel(channel);
+			else if (channel->operators_empty())
+				channel->make_any_operator();
 		}
 		else
 		{	
@@ -182,4 +192,281 @@ void	Server::commandPART(Client &client, Message &msg)
 			continue;
 		}
 	}
+}
+
+static bool	is_channel_mode(char c)
+{
+	if (c == 'o' || c == 'p' || c == 's' || c == 'i' || c == 't'
+		|| c == 'n' || c == 'b' || c == 'v')
+		return (true);
+	return (false);
+}
+
+static bool	check_ban_mask(const std::string& str)
+{
+	size_t	i = 1;
+
+	if (str.size() < 5)
+		return (false);
+	if ((i = str.find('!', i)) == std::string::npos)
+		return (false);
+	if ((i = str.find('@', i + 2)) == std::string::npos)
+		return (false);
+	if (i + 1 >= str.size())
+		return (false);
+	return (true);
+}
+
+static bool	check_number(const std::string& str)
+{
+	if (str.empty())
+		return (false);
+	for (size_t i = 0; i < str.size(); i++)
+		if (!isdigit(str[i]))
+			return (false);
+	double tmp = strtod(str.c_str());
+	if (errno == ERANGE)
+		return (false);
+	if (tmp > INT_MAX)
+		return (false);
+	return (true);
+}
+	
+
+bool	Server::check_channel_modes(const std::string& str, const Message& msg)
+{
+	if (str.size() < 2 || str.size() > 9)
+		return (false);
+	if (str[0] != '+' && str[0] != '-')
+		return (false);
+	int	param_modes = 3;
+	for (size_t i = 1; i < str.size(); i++)
+	{
+		if (!is_channel_mode(str[i]))
+		{
+			sendReply(generateErrorReply(_servername, ERR_UNKNOWNMODE, str[i]));
+			return (false);
+		}
+		if (str[i] == 'o' || str[i] == 'b' || (str[i] == 'l' && str[0] == '+') || str[i] == 'v'
+			|| str[i] == 'k' && str[0] == '+')
+			param_modes--;
+		if (param_modes < 0)
+			return (false);
+		if (str[i] != 'o' && str[i] != 'b' && str[i] != 'v' && str.find(str[i], i + 1) != std::string::npos)
+			return (false);
+	}
+	if (msg.params.size() < (2 + 3 - param_modes))
+	{	
+		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, "MODE"));
+		return (false);
+	}
+	if (msg.params.size() > (2 + 3 - param_modes))
+		return (false);
+	param_modes = 2;
+	for (size_t i = 1; i < str.size(); i++)
+	{
+		if (str[i] == 'o' || str[i] == 'v')
+		{
+			if (!validateNickname(msg.params[param_modes]))
+				return (false);
+			param_modes++;
+		}
+		else if (str[i] == 'b')
+		{
+			if (!check_ban_mask(msg.params[param_modes]))
+				return (false);
+			param_modes++;
+		}
+		else if (str[i] == 'l' && str[0] == '+')
+		{
+			if (!check_number(msg.params[param_modes]))
+				return (false);
+			param_modes++;
+		}
+		else if (str[i] == 'k' && str[0] == '+')
+			param_modes++;
+	}
+	return (true);
+}
+
+void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::string param)
+{
+	if (mode == 'o')
+	{
+		if (sign == '+')
+		{
+			if (channel->have_member(param) && !channel->have_operator(param))
+				channel->add_operator(param);
+			else if (channel->have_member(param) && channel->have_operator(param))
+				return;
+			else
+				sendReply(generateErrorReply(_servername, ERR_NOSUCHNICK, param));
+		}
+		else if (sign == '-')
+		{
+			if (channel->have_operator(param))
+			{	
+				channel->remove_operator(param);
+				if (channel->operators_empty())
+					channel->make_any_operator();
+			}
+			else
+				sendReply(generateErrorReply(_servername, ERR_NOSUCHNICK, param));
+		}
+	}
+	else if (mode == 'p')
+	{
+		if (sign == '+' && !(channel->get_private_status()))
+			channel->set_private_status(true);
+		else if (sign == '-' && channel->get_private_status())
+			channel->set_private_status(false);
+	}
+	else if (mode == 's')
+	{
+		if (sign == '+' && !(channel->get_secret_status()))
+			channel->set_secret_status(true);
+		else if (sign == '-' && channel->get_secret_status())
+			channel->set_secret_status(false);
+	}
+	else if (mode == 'i')
+	{
+		if (sign == '+' && !(channel->get_invite_status()))
+			channel->set_invite_status(true);
+		else if (sign == '-' && channel->get_invite_status())
+			channel->set_invite_status(false);
+	}
+	else if (mode == 't')
+	{
+		if (sign == '+' && !(channel->get_topic_status()))
+			channel->set_topic_status(true);
+		else if (sign == '-' && channel->get_topic_status())
+			channel->set_topic_status(false);
+	}
+	else if (mode == 'n')
+	{
+		if (sign == '+' && !(channel->get_outside_status()))
+			channel->set_outside_status(true);
+		else if (sign == '-' && channel->get_outside_status())
+			channel->set_outside_status(false);
+	}
+	else if (mode == 'm')
+	{
+		if (sign == '+' && !(channel->get_moder_status()))
+			channel->set_moder_status(true);
+		else if (sign == '-' && channel->get_moder_status())
+			channel->set_moder_status(false);
+	}
+	else if (mode == 'm')
+	{
+		if (sign == '+' && !(channel->get_moder_status()))
+			channel->set_moder_status(true);
+		else if (sign == '-' && channel->get_moder_status())
+			channel->set_moder_status(false);
+	}
+	else if (mode == 'l')
+	{	
+		if ((sign == '-' && channel->get_user_limit() != MAX_MEMBERS)
+			|| (sign == '+' && channel->get_user_limit() != static_cast<size_t>(atoi(param.c_str())))
+			channel->set_user_limit(param, sign);
+	}
+	else if (mode == 'b')
+	{
+		if (sign == '+' && !(channel->have_banmask(param)))
+			channel->add_banmask(param);
+		else if (sign == '-' && channel->have_banmask(param))
+			channel->remove_banmask(param);
+	}
+	else if (mode == 'v')
+	{
+		if (!(channel->have_member(param)))
+			sendReply(generateErrorReply(_servername, ERR_NOSUCHNICK, param));
+		else if (sign == '+' && !(channel->have_speaker(param)))
+			channel->add_speaker(param);
+		else if (sign == '-' && channel->have_speaker(param))
+			channel->remove_speaker(param);
+	}
+	else if (mode == 'k')
+	{
+		if (sign == '+' && channel->have_key())
+			sendReply(generateErrorReply(_servername, ERR_KEYSET, param));
+		else if (sign == '+')
+			channel->set_key(param);
+		else if (sign == '-' && channel->have_key())
+			channel->remove_key();
+	}
+}
+
+void	Server::channel_mode(Client &client, Message &msg)
+{
+	Channel* channel = find_channel(msg.params[0]);
+	
+	if (!channel)
+	{	
+		sendReply(generateErrorReply(_servername, ERR_NOSUCHCHANNEL, msg.params[0]));
+		return;
+	}
+	if (!channel->have_member(client))
+	{
+		sendReply(generateErrorReply(_servername, ERR_NOTONCHANNEL, msg.params[0]));
+		return;
+	}
+	if (msg.params.size() == 1)
+	{
+		//reply with channel modes
+		return;
+	}
+	if (!channel->have_operator(client))
+	{
+		sendReply(generateErrorReply(_servername, ERR_CHANOPRIVSNEEDED, msg.params[0]));
+		return;
+	}
+	if (msg.params.size() == 2 && (msg.params[1] == "+b" || msg.params[1] == "-b" || msg.params == "b")
+	{
+		//reply with ban list
+		return;
+	}
+	std::string	mod = msg.params[1];
+	if (!check_channel_modes(mod))
+		return;
+	size_t	param = 2;
+	size_t	max_param = 1;
+	for (size_t i = 1; i < mod.size(); i++)
+		if (mod[i] == 'o' || mod[i] == 'b' || (mod[i] == 'l' && mod[0] == '+') || mod[i] == 'v'
+			|| mod[i] == 'k' && mod[0] == '+')
+			max_param++;
+	for (size_t i = 1; i < mod.size(); i++)
+	{
+		if (max_param < param)
+			handle_channel_mode(mod[0], mod[i], channel, std::string());
+		else
+			handle_channel_mode(mod[0], mod[i], channel, msg.params[param]);
+		if (mod[i] == 'o' || mod[i] == 'b' || (mod[i] == 'l' && mod[0] == '+') || mod[i] == 'v'
+			|| mod[i] == 'k' && mod[0] == '+')
+			param++;
+	}
+}
+
+void	Server::channel_mode(Client &client, Message &msg)
+{
+	
+}
+
+void	Server::commandMODE(Client &client, Message &msg)
+{
+	if ((!msg.prefix.empty() && !comparePrefixAndNick(msg.prefix, client)) || !client.getRegistrationStatus())
+		return;
+	if (msg.params.empty())
+	{	
+		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, "MODE"));
+		return;
+	}
+	if (msg.params[0].empty())
+	{
+		sendReply(generateErrorReply(_servername, ERR_NOSUCHNICK, msg.params[0]));
+		return;
+	}
+	if (check_channel_name(msg.params[0]))
+		channel_mode(client, msg);
+	else
+		user_mode(client, msg);
 }
