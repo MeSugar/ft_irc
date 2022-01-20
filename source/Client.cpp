@@ -25,6 +25,7 @@ void	Client::setNickname(std::string const &nick)
 
 void	Client::setRegistrationStatus() { this->_isRegistered = true; }
 void	Client::setOperatorStatus() { this->_isOperator = true; }
+void	Client::setHostname(std::string const &hostname) { this->_hostname = hostname; }
 
 void	Client::setUser(std::vector<std::string> &params)
 {

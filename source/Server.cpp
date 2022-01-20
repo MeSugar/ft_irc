@@ -19,8 +19,8 @@ Server::Server(int port, std::string const &password) : TemplateRun(port, passwo
 	// this->_commands.insert(std::make_pair("NAMES", &Server::commandNAMES));
 	// this->_commands.insert(std::make_pair("LIST", &Server::commandLIST));
 	// this->_commands.insert(std::make_pair("INVITE", &Server::commandINVITE));
-	// this->_commands.insert(std::make_pair("LICK", &Server::commandLICK));
-	// this->_commands.insert(std::make_pair("PRIVMSG", &Server::commandPRIVMSG));
+	// this->_commands.insert(std::make_pair("KICK", &Server::commandLICK));
+	this->_commands.insert(std::make_pair("PRIVMSG", &Server::commandPRIVMSG));
 	// this->_commands.insert(std::make_pair("NOTICE", &Server::commandNOTICE));
 	// this->_commands.insert(std::make_pair("KILL", &Server::commandKILL));
 	// this->_commands.insert(std::make_pair("PING", &Server::commandPING));

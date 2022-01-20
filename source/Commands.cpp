@@ -91,3 +91,23 @@ void	Server::commandOPER(Client &client, Message &msg)
 	}
 }
 
+void	Server::commandPRIVMSG(Client &client, Message &msg)
+{
+	sendReply(client, msg.params[1] + "\n");
+	if (msg.prefix.empty() || this->comparePrefixAndNick(msg.prefix, client))
+	{
+		if (msg.params.empty() || msg.params[0][0] == ':')
+			this->sendReply(client, generateErrorReply(this->_servername, ERR_NORECIPIENT, client.getNickname(), "PRIVMSG"));
+		else if (msg.params.size() < 2 && !this->containsText(msg.params))
+			this->sendReply(client, generateErrorReply(this->_servername, ERR_NOTEXTTOSEND, client.getNickname(), "PRIVMSG"));
+		else
+		{
+			std::set<std::string> *recipients = this->checkAndComposeRecipientsList(client, msg.params);
+			if (recipients->empty())
+				this->sendReply(client, generateErrorReply(this->_servername, ERR_NOSUCHNICK, msg.params[0], "PRIVMSG"));
+			else
+				for (std::set<std::string>::iterator it = recipients->begin(); it != recipients->end(); it++)
+					sendReply(*this->findClient((*it), this->_clients), msg.params[1]);
+		}
+	}
+}

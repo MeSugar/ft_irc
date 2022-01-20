@@ -60,6 +60,30 @@ bool	Channel::have_member(const Client& client)
 	return (false);
 }
 
+bool	Channel::have_member(const std::string& nickname)
+{
+	for (std::vector<Client *>::iterator it = _members.begin(); it != _members.end(); it++)
+		if ((*it)->getNickname() == nickname)
+			return (true);
+	return (false);
+}
+
+bool	Channel::have_operator(const std::string& nickname)
+{
+	for (std::vector<Client *>::iterator it = _channelOperators.begin(); it != _channelOperators.end(); it++)
+		if ((*it)->getNickname() == nickname)
+			return (true);
+	return (false);
+}
+
+bool	Channel::have_speaker(const std::string& nickname)
+{
+	for (std::vector<std::string>::iterator it = _speakers.begin(); it != _speakers.end(); it++)
+		if (*it == nickname)
+			return (true);
+	return (false);
+}
+
 bool	Channel::empty() const
 {
 	return (_members.empty());
@@ -102,3 +126,19 @@ const bool&	Channel::get_invite_status() const
 {
 	return (_isInviteOnly);
 }
+
+const bool& Channel::get_moder_status() const
+{
+	return (_isModerated);
+}
+
+const bool& Channel::get_outside_status() const
+{
+	return (_noMessagesFromOutside);
+}
+
+std::vector<Client *> &Channel::get_members()
+{ 
+	return (_members);
+}
+
