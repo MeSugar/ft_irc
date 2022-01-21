@@ -76,6 +76,7 @@ class Channel
 		//getters
 		const std::string&	get_name() const;
 		const std::string&	get_topic() const;
+		const std::string&	get_key() const;
 		const bool&			get_invite_status() const;
 		const bool&			get_private_status() const;
 		const bool&			get_secret_status() const;
@@ -83,5 +84,6 @@ class Channel
 		const bool&			get_outside_status() const;
 		const bool&			get_moder_status() const;
 		const size_t&		get_user_limit() const;
+		const std::vector<std::string>&	get_banlist() const;
 };
 

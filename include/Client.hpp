@@ -31,6 +31,9 @@ class Client
 		std::vector<Channel *>		_channels;
 		unsigned const				_channelsLimit;
 		std::vector<std::string>	_channels_invited;
+		bool						_invisible;
+		bool						_receive_server_notices;
+		bool						_receive_wallops;
 		
 		std::vector<std::string>	_nicknameHistory;
 
@@ -54,6 +57,10 @@ class Client
 		std::string const	&getNickname() const;
 		std::string const	&getUsername() const;
 		std::string const	&getHostname() const;
+		const bool&			get_invisible() const;
+		const bool&			get_receive_notices() const;
+		const bool&			get_receive_wallops() const;
+		const bool&			get_operator_status() const;
 
 		// setters
 		void	setPassword(std::string const &pass);
@@ -62,6 +69,11 @@ class Client
 
 		void	setRegistrationStatus();
 		void	setOperatorStatus();
+
+		void	set_invisible(bool status);
+		void	set_receive_notices(bool status);
+		void	set_receive_wallops(bool status);
+		void	set_operator_status(bool status);
 
 		//TEST
 		void	client_test_loop(Server& serv);

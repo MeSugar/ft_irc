@@ -341,6 +341,11 @@ const std::string&	Channel::get_topic() const
 	return (_topic);
 }
 
+const std::string&	Channel::get_key() const
+{
+	return (_key);
+}
+
 const bool&	Channel::get_invite_status() const
 {
 	return (_isInviteOnly);
@@ -374,4 +379,9 @@ const bool&	Channel::get_moder_status() const
 const size_t&		get_user_limit() const
 {
 	return (_user_limit);
+}
+
+const std::vector<std::string>&	get_banlist() const
+{
+	return (_bans);
 }

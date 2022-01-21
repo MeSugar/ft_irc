@@ -54,6 +54,7 @@ class Server : public TemplateRun
 		bool		check_channel_name(const std::string& str) const; //checks if the name is valid
 		void 		divide_comma(std::vector<std::string> &to, std::string str); //splits a given string with comma as a delimiter
 		bool		check_channel_modes(const std::string& str, const Message& msg); //checks if the parameters of MODE command are valid
+		bool		check_user_modes(const std::string& str); //checks if the parameters of MODE command are valid
 
 		const std::string&	get_servername() const;
 
@@ -74,7 +75,11 @@ class Server : public TemplateRun
 		//command utils
 		void	channel_mode(Client &client, Message &msg); //checks and iterates on channel mode string
 		void	user_mode(Client &client, Message &msg); //checks and iterates on user mode string
-		void	handle_channel_mode(char sign, char mode); //processes channel mode
+		void	handle_channel_mode(char sign, char mode, Channel* channel, std::string param); //processes channel mode
+		void	handle_user_mode(char sign, char mode, Client& client); //process user mode
+		void	channel_mods_rpl(Chennel* channel, Client& client); //sends the list of channel mods to the user
+		void	user_mods_rpl(Client& client); //sends the list of user mods to the user
+		void	banlist_rpl(Channel* channel, Client& client); //sends the banlist to the user
 		
 		// commands
 		void	commandHandler(Client &client, Message &msg);

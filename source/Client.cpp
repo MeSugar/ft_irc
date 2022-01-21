@@ -1,7 +1,7 @@
 #include "../include/Client.hpp"
 
 Client::Client()
-: _isRegistered(false), _channelsLimit(10)
+: _isRegistered(false), _isOperator(false), _invisible(false), _receive_server_notices(false), _receive_wallops(false), _channelsLimit(10)
 {}
 
 Client::~Client() {}
@@ -12,6 +12,10 @@ std::string	const	&Client::getPassword() const { return this->_password; }
 std::string const	&Client::getNickname() const { return this->_nickname; }
 std::string const	&Client::getUsername() const { return this->_username; }
 std::string	const	&Client::getHostname() const { return this->_hostname; } 
+const bool&			Client::get_invisible() const { return (_invisible); }
+const bool&			Client::get_receive_notices() const { return (_receive_server_notices); }
+const bool&			Client::get_receive_wallops() const { return (_receive_wallops); }
+const bool&			Client::get_operator_status() const { return (_isOperator); }
 
 // setters
 void    Client::setPassword(std::string const &pass) { this->_password = pass; }
@@ -24,6 +28,10 @@ void	Client::setNickname(std::string const &nick)
 
 void	Client::setRegistrationStatus() { this->_isRegistered = true; }
 void	Client::setOperatorStatus() { this->_isOperator = true; }
+void	Client::set_invisible(bool status) { _invisible = status; }
+void	Client::set_receive_notices(bool status) { _receive_server_notices = status; }
+void	Client::set_receive_wallops(bool status) { _receive_wallops = status; }
+void	Client::set_operator_status(bool status) { _isOperator = status; }
 
 void	Client::setUser(std::vector<std::string> &params)
 {
