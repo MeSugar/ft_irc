@@ -22,6 +22,8 @@ class Client
 		int							_clientFd;
 		bool						_isRegistered;
 		bool						_isOperator;
+		bool						_isAway;
+		std::string					_awayMessage;
 		std::string					_password;
 		std::string					_nickname;
 		std::string					_hostname;
@@ -53,6 +55,8 @@ class Client
 		// getters
 		int					getClientFd() const;
 		bool				getRegistrationStatus() const;
+		bool				getAwayStatus() const;
+		std::string	const	&getAwayMessage() const;
 		std::string	const	&getPassword() const;
 		std::string const	&getNickname() const;
 		std::string const	&getUsername() const;
@@ -66,7 +70,7 @@ class Client
 
 		void	setRegistrationStatus();
 		void	setOperatorStatus();
-
+		void	setAwayStatus(const std::string &msg = std::string());
 
 		void	add_channel(Channel* channel);
 		void	remove_channel(Channel *channel);

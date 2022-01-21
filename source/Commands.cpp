@@ -106,10 +106,30 @@ void	Server::commandPRIVMSG(Client &client, Message &msg)
 			if (recipients != NULL && !recipients->empty())
 			{
 				for (std::set<std::string>::iterator it = recipients->begin(); it != recipients->end(); it++)
-					sendReply(*this->findClient((*it), this->_clients), msg.params[1] + "\n");
+				{
+					Client &cl = *this->findClient((*it), this->_clients);
+					if (cl.getAwayStatus())
+						sendReply(client, generateNormalReply(this->_servername, RPL_AWAY, client.getNickname(), "PRIVMSG", cl.getNickname() ,cl.getAwayMessage()));
+					else
+						sendReply(cl, msg.params[1] + "\n");
+				}
 				delete recipients;
 			}
-			
 		}
 	}
 }
+
+void	Server::commandAWAY(Client &client, Message &msg)
+{
+	if (!msg.params.empty())
+	{
+		this->sendReply(client, generateNormalReply(this->_servername, RPL_NOWAWAY, client.getNickname(), "AWAY"));
+		client.setAwayStatus(msg.params[0]);
+	}
+	else
+	{
+		this->sendReply(client, generateNormalReply(this->_servername, RPL_UNAWAY, client.getNickname(), "AWAY"));
+		client.setAwayStatus();
+	}
+}
+

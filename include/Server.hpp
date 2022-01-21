@@ -89,6 +89,7 @@ class Server : public TemplateRun
 		void	commandOPER(Client &client, Message &msg);
 		void	commandJOIN(Client &client, Message &msg);
 		void	commandPART(Client &client, Message &msg);
+		void	commandAWAY(Client &client, Message &msg);
 
 		
 		void	commandPRIVMSG(Client &client, Message &msg);

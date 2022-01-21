@@ -1,7 +1,7 @@
 #include "../include/Client.hpp"
 
 Client::Client(int sockfd)
-: _clientFd(sockfd), _isRegistered(false), _channelsLimit(10)
+: _clientFd(sockfd), _isRegistered(false), _isAway(false), _channelsLimit(10)
 {}
 
 Client::~Client() {}
@@ -9,6 +9,8 @@ Client::~Client() {}
 // getters
 int					Client::getClientFd() const { return this->_clientFd; }
 bool				Client::getRegistrationStatus() const { return this->_isRegistered; }
+bool				Client::getAwayStatus() const { return this->_isAway; }
+std::string	const	&Client::getAwayMessage() const { return this->_awayMessage; }
 std::string	const	&Client::getPassword() const { return this->_password; }
 std::string const	&Client::getNickname() const { return this->_nickname; }
 std::string const	&Client::getUsername() const { return this->_username; }
@@ -24,6 +26,17 @@ void	Client::setNickname(std::string const &nick)
 }
 
 void	Client::setRegistrationStatus() { this->_isRegistered = true; }
+void	Client::setAwayStatus(const std::string &msg)
+{
+	if (msg.size() > 0)
+	{
+		this->_awayMessage = msg;
+		this->_isAway = true;
+	}
+	else
+		this->_isAway = false;
+}
+
 void	Client::setOperatorStatus() { this->_isOperator = true; }
 void	Client::setHostname(std::string const &hostname) { this->_hostname = hostname; }
 
@@ -107,7 +120,7 @@ int		Client::check_command(Message& mes)
 	const char*	com_array[] = {"PASS", "NICK", "USER", "OPER", "QUIT",
 						"JOIN", "PART", "MODE", "TOPIC", "NAMES", "LIST", "INVITE", "KICK",
 						"PRIVMSG", "NOTICE",
-						"KILL", "PING", "PONG"};
+						"KILL", "PING", "PONG", "AWAY"};
 	if (!mes.command.size())
 	{
 		if (!mes.prefix.size() && !mes.params.size())
@@ -116,7 +129,7 @@ int		Client::check_command(Message& mes)
 	}
 	if (isalpha(mes.command[0]))
 	{
-		for (int i = 0; i <= 17; i++)
+		for (int i = 0; i <= 18; i++)
 			if (mes.command == com_array[i])
 				return (i);
 	}

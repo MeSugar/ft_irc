@@ -27,6 +27,7 @@ Server::Server(int port, std::string const &password) : TemplateRun(port, passwo
 	// this->_commands.insert(std::make_pair("PONG", &Server::commandPONG));
 	// this->_commands.insert(std::make_pair("REHASH", &Server::commandREHASH));
 	// this->_commands.insert(std::make_pair("RESTART", &Server::commandRESTART));
+	this->_commands.insert(std::make_pair("AWAY", &Server::commandAWAY));
 	this->parseMOTD();
 }
 
