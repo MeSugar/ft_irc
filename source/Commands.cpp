@@ -2,6 +2,7 @@
 
 void	Server::commandHandler(Client &client, Message &msg)
 {
+	this->printLog(msg);
 	if (this->_commands.find(msg.command) != this->_commands.end())
 		this->commandProcessor(client, msg);
 	else
@@ -93,7 +94,6 @@ void	Server::commandOPER(Client &client, Message &msg)
 
 void	Server::commandPRIVMSG(Client &client, Message &msg)
 {
-	sendReply(client, msg.params[1] + "\n");
 	if (msg.prefix.empty() || this->comparePrefixAndNick(msg.prefix, client))
 	{
 		if (msg.params.empty() || msg.params[0][0] == ':')
@@ -103,11 +103,13 @@ void	Server::commandPRIVMSG(Client &client, Message &msg)
 		else
 		{
 			std::set<std::string> *recipients = this->checkAndComposeRecipientsList(client, msg.params);
-			if (recipients->empty())
-				this->sendReply(client, generateErrorReply(this->_servername, ERR_NOSUCHNICK, msg.params[0], "PRIVMSG"));
-			else
+			if (recipients != NULL && !recipients->empty())
+			{
 				for (std::set<std::string>::iterator it = recipients->begin(); it != recipients->end(); it++)
-					sendReply(*this->findClient((*it), this->_clients), msg.params[1]);
+					sendReply(*this->findClient((*it), this->_clients), msg.params[1] + "\n");
+				delete recipients;
+			}
+			
 		}
 	}
 }

@@ -4,7 +4,7 @@ Server::Server(int port, std::string const &password) : TemplateRun(port, passwo
 {
 	this->_port = port;
 	this->_password = password;
-	this->_servername = "Nasha Iro4ka 1.0";
+	this->_servername = "~Nasha Iro4ka 1.0~";
 	this->_operatorHosts.push_back("host");
 	this->_operators.insert(std::pair<std::string, std::string>("admin", "admin"));
 	this->_commands.insert(std::make_pair("PASS", &Server::commandPASS));
