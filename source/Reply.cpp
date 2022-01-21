@@ -125,7 +125,7 @@ std::string generateNormalReply(std::string const &from, int const replyCode,
 		case RPL_ISON:
 			return (std::string(prefix + ":" + arg1 + "\n"));
 		case RPL_AWAY:
-			return (std::string(prefix + arg1 + " :" + arg2 + "\n"));
+			return (std::string(prefix + arg1 + " " + arg2 + " :" + arg3 + "\n"));
 		case RPL_UNAWAY:
 			return (std::string(prefix + ":You are no longer marked as being away\n"));
 		case RPL_NOWAWAY:
