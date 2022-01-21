@@ -43,6 +43,7 @@ class Server : public TemplateRun
 		
 		// utils
 		void	parseMOTD(); // get message of the day
+		void	printLog(Message &msg) const;
 		void	sendMOTD(Client &client);
 		void	sendReply(Client &client, std::string const &reply) const; // sends reply to clientfd
 		bool	validateNickname(std::string const &nick); // check if nickname contains invalid characters

@@ -9,6 +9,21 @@ void    Server::parseMOTD()
 	file.close();
 }
 
+void	Server::printLog(Message &msg) const
+{
+	std::cout << "------------------------------------" << std::endl;
+	std::cout << "message: " << this->_message;
+	std::cout << "prefix: " << msg.prefix << std::endl;
+	std::cout << "command: " << msg.command << std::endl;
+	size_t param_num = 1;
+	for (std::vector<std::string>::iterator it = msg.params.begin(); it != msg.params.end(); it++)
+	{
+		std::cout << "parameter[" << param_num << "]: " << *it << std::endl;
+		param_num++;
+	}
+}
+
+
 void	Server::sendMOTD(Client &client)
 {
 	for (std::vector<std::string>::iterator it = this->_MOTD.begin(); it != this->_MOTD.end(); it++)
@@ -121,13 +136,13 @@ bool	Server::validateMask(Client &client, const std::string &mask)
 		{
 			if (mask[i] == '*')
 			{
-				this->sendReply(client, generateErrorReply(this->_servername, ERR_WILDTOPLEVEL, client.getNickname(), "PRIVMSG"));
+				this->sendReply(client, generateErrorReply(this->_servername, ERR_WILDTOPLEVEL, client.getNickname(), "PRIVMSG", mask));
 				return false;
 			}
 		}
 		return true;
 	}
-	this->sendReply(client, generateErrorReply(this->_servername, ERR_NOTOPLEVEL, client.getNickname(), "PRIVMSG"));
+	this->sendReply(client, generateErrorReply(this->_servername, ERR_NOTOPLEVEL, client.getNickname(), "PRIVMSG", mask));
 	return false;
 }
 
@@ -159,7 +174,7 @@ bool	Server::addRecipientToList(std::set<std::string> &recipients, Client &from,
 {
 	if (recipients.insert(to->getNickname()).second == false)
 	{
-		this->sendReply(from, generateErrorReply(this->_servername, ERR_TOOMANYTARGETS, from.getNickname(), "PRIVMSG"));
+		this->sendReply(from, generateErrorReply(this->_servername, ERR_TOOMANYTARGETS, from.getNickname(), "PRIVMSG", to->getNickname()));
 		return false;
 	}
 	return true;
@@ -180,7 +195,7 @@ std::set<std::string> *Server::checkAndComposeRecipientsList(Client &client, std
 				if ((!ch->have_member(client) && ch->get_outside_status())
 					|| (ch->get_moder_status() && !ch->have_operator(client.getNickname()) && !ch->have_speaker(client.getNickname())))
 				{
-						this->sendReply(client, generateErrorReply(this->_servername, ERR_CANNOTSENDTOCHAN, client.getNickname(), "PRIVMSG"));
+						this->sendReply(client, generateErrorReply(this->_servername, ERR_CANNOTSENDTOCHAN, client.getNickname(), "PRIVMSG", (*it)));
 						return NULL;
 				}
 				for (std::vector<Client *>::iterator ite = ch->get_members().begin(); ite != ch->get_members().end(); ite++)
@@ -190,7 +205,7 @@ std::set<std::string> *Server::checkAndComposeRecipientsList(Client &client, std
 			else
 			{
 				int	recipientsAdded = 0;
-				if ((*it)[0] == '#' && (*it).find('*') != std::string::npos)// adds recipients that match the hostname mask
+				if ((*it)[0] == '#') // adds recipients that match the hostname mask
 				{
 					if (!validateMask(client, (*it)))
 						return NULL;
@@ -206,19 +221,19 @@ std::set<std::string> *Server::checkAndComposeRecipientsList(Client &client, std
 				}
 				if (recipientsAdded == 0)
 				{
-					this->sendReply(client, generateErrorReply(this->_servername, ERR_NOSUCHNICK, client.getNickname(), "PRIVMSG"));
+					this->sendReply(client, generateErrorReply(this->_servername, ERR_NOSUCHNICK, client.getNickname(), "PRIVMSG", (*it)));
 					return NULL;
 				}
 			}		
 		}
-		else if (this->findClient((*it), this->_connectedClients))
+		else if (this->findClient((*it), this->_connectedClients)) // tries to find the client in the list of connected users and add it to recipients list
 		{
 			if (!this->addRecipientToList(recipients, client, this->findClient((*it), this->_connectedClients)))
 				return NULL;
 		}
 		else
 		{
-			this->sendReply(client, generateErrorReply(this->_servername, ERR_NOSUCHNICK, client.getNickname(), "PRIVMSG"));
+			this->sendReply(client, generateErrorReply(this->_servername, ERR_NOSUCHNICK, client.getNickname(), "PRIVMSG", (*it)));
 			return NULL;
 		}
 	}
