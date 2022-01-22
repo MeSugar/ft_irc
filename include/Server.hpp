@@ -91,4 +91,5 @@ class Server : public TemplateRun
 		void	commandJOIN(Client &client, Message &msg);
 		void	commandPART(Client &client, Message &msg);
 		void	commandMODE(Client &client, Message &msg);
+		void	commandTOPIC(Client &client, Message &msg);
 };

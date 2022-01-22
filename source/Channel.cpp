@@ -330,6 +330,12 @@ void	Channel::set_key(const std::string& key)
 	send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, "+k", key));
 }
 
+void	Channel::set_topic(const std::string& topic)
+{
+	_topic = topic;
+	send_message(generateNormalReply(_server->get_servername(), RPL_TOPIC, _name, _topic));
+}
+
 //getters
 const std::string&	Channel::get_name() const
 {

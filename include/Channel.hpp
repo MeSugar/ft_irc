@@ -73,6 +73,7 @@ class Channel
 		void				set_moder_status(bool status);
 		void				set_user_limit(std::string n, char sign);
 		void				set_key(const std::string& key);
+		void				set_topic(const std::string& topic);
 		
 		//getters
 		const std::string&	get_name() const;

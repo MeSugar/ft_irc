@@ -615,3 +615,36 @@ void	Server::commandMODE(Client &client, Message &msg)
 	else
 		user_mode(client, msg);
 }
+
+void	Server::commandTOPIC(Client &client, Message &msg)
+{
+	if ((!msg.prefix.empty() && !comparePrefixAndNick(msg.prefix, client)) || !client.getRegistrationStatus())
+		return;
+	if (msg.params.empty() || msg.params[0].empty())
+	{	
+		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, "MODE"));
+		return;
+	}
+	if (msg.params.size() > 2)
+		return;
+	Channel*	channel = find_channel(msg.params[0]);
+	if (!channel || !(channel->have_member(client)))
+	{
+		sendReply(generateErrorReply(_servername, ERR_NOTONCHANNEL, msg.params[0]));
+		return;
+	}
+	if (msg.params.size() == 1)
+	{
+		if (channel->get_topic().empty())
+			sendReply(generateNormalReply(_servername, RPL_NOTOPIC, msg.params[0]));
+		else
+			sendReply(generateNormalReply(_servername, RPL_TOPIC, msg.params[0], channel->get_topic()));
+	}
+	else
+	{
+		if (channel->get_topic_status() && !(channel->have_operator(client)))
+			sendReply(generateErrorReply(_servername, ERR_CHANOPRIVSNEEDED, msg.params[0]));
+		else
+			channel->set_topic(msg.params[1]);
+	}
+}
