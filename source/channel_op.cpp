@@ -238,7 +238,10 @@ bool	Server::check_channel_modes(const std::string& str, const Message& msg)
 	if (str.size() < 2 || str.size() > 11)
 		return (false);
 	if (str[0] != '+' && str[0] != '-')
+	{	
+		sendReply(generateErrorReply(_servername, ERR_UNKNOWNMODE, std::string(1, str[0])));
 		return (false);
+	}
 	int	param_modes = 3;
 	for (size_t i = 1; i < str.size(); i++)
 	{
@@ -504,7 +507,10 @@ bool	Server::check_user_modes(const std::string& mod)
 	if (mod.size() < 2 || mod.size() > 5)
 		return (false);
 	if (mod[0] != '+' && mod[0] != '-')
+	{
+		sendReply(generateErrorReply(_servername, ERR_UMODEUNKNOWNFLAG));	
 		return (false);
+	}
 	for (size_t i = 1; i < mod.size(); i++)
 	{
 		if (mod[i] != 'i' && mod[i] != 'w' && mod[i] != 's' && mod[i] != 'o')
