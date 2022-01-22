@@ -197,7 +197,7 @@ void	Server::commandPART(Client &client, Message &msg)
 static bool	is_channel_mode(char c)
 {
 	if (c == 'o' || c == 'p' || c == 's' || c == 'i' || c == 't'
-		|| c == 'n' || c == 'b' || c == 'v')
+		|| c == 'n' || c == 'm' || c == 'l' || c == 'b' || c == 'v' || c == 'k')
 		return (true);
 	return (false);
 }
@@ -235,7 +235,7 @@ static bool	check_number(const std::string& str)
 
 bool	Server::check_channel_modes(const std::string& str, const Message& msg)
 {
-	if (str.size() < 2 || str.size() > 9)
+	if (str.size() < 2 || str.size() > 11)
 		return (false);
 	if (str[0] != '+' && str[0] != '-')
 		return (false);
