@@ -39,7 +39,6 @@ class Server : public TemplateRun
 		// utils
 		void		parseMOTD(); // get message of the day
 		void		sendMOTD();
-		void		sendReply(std::string const &reply) const; // reply management (just for testing, need to be rewritten to send reply to user socket)
 		bool		validateNickname(std::string const &nick); // check if nickname contains invalid characters
 		bool		comparePrefixAndNick(std::string const &prefix, Client const &client);
 		Client		*findClient(std::string const &nick, std::vector<Client *> &clients); // find a client using nickname
@@ -56,13 +55,14 @@ class Server : public TemplateRun
 		bool		check_channel_modes(const std::string& str, const Message& msg); //checks if the parameters of MODE command are valid
 		bool		check_user_modes(const std::string& str); //checks if the parameters of MODE command are valid
 
-		const std::string&	get_servername() const;
 
 	public:
 		Server(int port, std::string const &password);
 		~Server();
 
 
+		const std::string&	get_servername() const;
+		void		sendReply(std::string const &reply) const; // reply management (just for testing, need to be rewritten to send reply to user socket)
 		//TEST
 		void	server_test_client();
 		
@@ -77,7 +77,7 @@ class Server : public TemplateRun
 		void	user_mode(Client &client, Message &msg); //checks and iterates on user mode string
 		void	handle_channel_mode(char sign, char mode, Channel* channel, std::string param); //processes channel mode
 		void	handle_user_mode(char sign, char mode, Client& client); //process user mode
-		void	channel_mods_rpl(Chennel* channel, Client& client); //sends the list of channel mods to the user
+		void	channel_mods_rpl(Channel* channel, Client& client); //sends the list of channel mods to the user
 		void	user_mods_rpl(Client& client); //sends the list of user mods to the user
 		void	banlist_rpl(Channel* channel, Client& client); //sends the banlist to the user
 		

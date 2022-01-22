@@ -29,11 +29,11 @@ class Client
 
 		// Server const&				_server;
 		std::vector<Channel *>		_channels;
-		unsigned const				_channelsLimit;
 		std::vector<std::string>	_channels_invited;
 		bool						_invisible;
 		bool						_receive_server_notices;
 		bool						_receive_wallops;
+		unsigned const				_channelsLimit;
 		
 		std::vector<std::string>	_nicknameHistory;
 

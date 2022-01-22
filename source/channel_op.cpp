@@ -12,7 +12,7 @@ void	Server::server_test_client()
 	test_client.client_test_loop(*this);
 }
 
-const Server::std::string&	get_servername() const
+const std::string&	Server::get_servername() const
 {
 	return (_servername);
 }
@@ -224,7 +224,7 @@ static bool	check_number(const std::string& str)
 	for (size_t i = 0; i < str.size(); i++)
 		if (!isdigit(str[i]))
 			return (false);
-	double tmp = strtod(str.c_str());
+	double tmp = strtod(str.c_str(), NULL);
 	if (errno == ERANGE)
 		return (false);
 	if (tmp > INT_MAX)
@@ -244,23 +244,23 @@ bool	Server::check_channel_modes(const std::string& str, const Message& msg)
 	{
 		if (!is_channel_mode(str[i]))
 		{
-			sendReply(generateErrorReply(_servername, ERR_UNKNOWNMODE, str[i]));
+			sendReply(generateErrorReply(_servername, ERR_UNKNOWNMODE, std::string(1, str[i])));
 			return (false);
 		}
 		if (str[i] == 'o' || str[i] == 'b' || (str[i] == 'l' && str[0] == '+') || str[i] == 'v'
-			|| str[i] == 'k' && str[0] == '+')
+			|| (str[i] == 'k' && str[0] == '+'))
 			param_modes--;
 		if (param_modes < 0)
 			return (false);
 		if (str[i] != 'o' && str[i] != 'b' && str[i] != 'v' && str.find(str[i], i + 1) != std::string::npos)
 			return (false);
 	}
-	if (msg.params.size() < (2 + 3 - param_modes))
+	if (msg.params.size() < static_cast<size_t>(2 + 3 - param_modes))
 	{	
 		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, "MODE"));
 		return (false);
 	}
-	if (msg.params.size() > (2 + 3 - param_modes))
+	if (msg.params.size() > static_cast<size_t>(2 + 3 - param_modes))
 		return (false);
 	param_modes = 2;
 	for (size_t i = 1; i < str.size(); i++)
@@ -289,7 +289,7 @@ bool	Server::check_channel_modes(const std::string& str, const Message& msg)
 	return (true);
 }
 
-static void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::string param)
+void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::string param)
 {
 	if (mode == 'o')
 	{
@@ -374,7 +374,7 @@ static void	Server::handle_channel_mode(char sign, char mode, Channel* channel, 
 	else if (mode == 'l')
 	{	
 		if ((sign == '-' && channel->get_user_limit() != MAX_MEMBERS)
-			|| (sign == '+' && channel->get_user_limit() != static_cast<size_t>(atoi(param.c_str())))
+			|| (sign == '+' && channel->get_user_limit() != static_cast<size_t>(atoi(param.c_str()))))
 			channel->set_user_limit(param, sign);
 	}
 	else if (mode == 'b')
@@ -406,6 +406,7 @@ static void	Server::handle_channel_mode(char sign, char mode, Channel* channel, 
 
 void	Server::channel_mods_rpl(Channel* channel, Client& client)
 {
+	(void)client;
 	std::string	tmp;
 	std::stringstream ss;
 
@@ -430,10 +431,10 @@ void	Server::channel_mods_rpl(Channel* channel, Client& client)
 		tmp += 'i';
 		ss << channel->get_user_limit();
 	}
-	send_reply(generateNormalReply(_servername, RPL_CHANNELMODEIS, channel->get_name(), tmp, ss.str()));
+	sendReply(generateNormalReply(_servername, RPL_CHANNELMODEIS, channel->get_name(), tmp, ss.str()));
 	if (channel->have_key())
-		tmp = '+k';
-	send_reply(generateNormalReply(_servername, RPL_CHANNELMODEIS, channel->get_name(), tmp, channel->get_key()));
+		tmp = "+k";
+	sendReply(generateNormalReply(_servername, RPL_CHANNELMODEIS, channel->get_name(), tmp, channel->get_key()));
 }
 
 void	Server::banlist_rpl(Channel* channel, Client& client)
@@ -441,9 +442,9 @@ void	Server::banlist_rpl(Channel* channel, Client& client)
 	(void)client;
 	const std::vector<std::string> bans = channel->get_banlist();
 
-	for(std::vector<std::string>const_iterator it = bans.begin(); it != bans.end(); it++)
-		send_reply(generateNormalReply(_servername, RPL_BANLIST, channel->get_name(), *it));
-	send_reply(generateNormalReply(_servername, RPL_ENDOFBANLIST, channel->get_name()));
+	for (std::vector<std::string>::const_iterator it = bans.begin(); it != bans.end(); it++)
+		sendReply(generateNormalReply(_servername, RPL_BANLIST, channel->get_name(), *it));
+	sendReply(generateNormalReply(_servername, RPL_ENDOFBANLIST, channel->get_name()));
 }
 
 void	Server::channel_mode(Client &client, Message &msg)
@@ -470,19 +471,19 @@ void	Server::channel_mode(Client &client, Message &msg)
 		sendReply(generateErrorReply(_servername, ERR_CHANOPRIVSNEEDED, msg.params[0]));
 		return;
 	}
-	if (msg.params.size() == 2 && (msg.params[1] == "+b" || msg.params[1] == "-b" || msg.params == "b")
+	if (msg.params.size() == 2 && (msg.params[1] == "+b" || msg.params[1] == "-b" || msg.params[1] == "b"))
 	{
 		banlist_rpl(channel, client);
 		return;
 	}
 	std::string	mod = msg.params[1];
-	if (!check_channel_modes(mod))
+	if (!check_channel_modes(mod, msg))
 		return;
 	size_t	param = 2;
 	size_t	max_param = 1;
 	for (size_t i = 1; i < mod.size(); i++)
 		if (mod[i] == 'o' || mod[i] == 'b' || (mod[i] == 'l' && mod[0] == '+') || mod[i] == 'v'
-			|| mod[i] == 'k' && mod[0] == '+')
+			|| (mod[i] == 'k' && mod[0] == '+'))
 			max_param++;
 	for (size_t i = 1; i < mod.size(); i++)
 	{
@@ -491,7 +492,7 @@ void	Server::channel_mode(Client &client, Message &msg)
 		else
 			handle_channel_mode(mod[0], mod[i], channel, msg.params[param]);
 		if (mod[i] == 'o' || mod[i] == 'b' || (mod[i] == 'l' && mod[0] == '+') || mod[i] == 'v'
-			|| mod[i] == 'k' && mod[0] == '+')
+			|| (mod[i] == 'k' && mod[0] == '+'))
 			param++;
 	}
 }
@@ -519,21 +520,21 @@ void	Server::handle_user_mode(char sign, char mode, Client& client)
 {
 	if (mode == 'i')
 	{
-		if (sign == '+' && !(client.get_invisible())
+		if (sign == '+' && !(client.get_invisible()))
 			client.set_invisible(true);
 		else if (sign == '-' && client.get_invisible())
 			client.set_invisible(false);
 	}
 	else if (mode == 's')
 	{
-		if (sign == '+' && !(client.get_receive_notices())
+		if (sign == '+' && !(client.get_receive_notices()))
 			client.set_receive_notices(true);
 		else if (sign == '-' && client.get_receive_notices())
 			client.set_receive_notices(false);
 	}
 	else if (mode == 'w')
 	{
-		if (sign == '+' && !(client.get_receive_wallops())
+		if (sign == '+' && !(client.get_receive_wallops()))
 			client.set_receive_wallops(true);
 		else if (sign == '-' && client.get_receive_wallops())
 			client.set_receive_wallops(false);
@@ -558,7 +559,7 @@ void	Server::user_mods_rpl(Client& client)
 		tmp += 'w';
 	if (client.get_operator_status())
 		tmp += 'o';
-	send_reply(generateNormalReply(_servername, RPL_UMODEIS, tmp));
+	sendReply(generateNormalReply(_servername, RPL_UMODEIS, tmp));
 }
 
 void	Server::user_mode(Client &client, Message &msg)

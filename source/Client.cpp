@@ -196,11 +196,12 @@ Message		Client::parse(const char* buf)
 void	Client::command_handle(Message& mes, Server& serv)
 {
 	typedef		void (Server::*funptr)(Client&, Message&);
-	funptr		f[] = {&Server::commandPASS, &Server::commandNICK, NULL, NULL, NULL, &Server::commandJOIN, &Server::commandPART};
+	funptr		f[] = {&Server::commandPASS, &Server::commandNICK, NULL, NULL, NULL, &Server::commandJOIN, &Server::commandPART,
+						&Server::commandMODE};
 
 	int	i = check_command(mes);
 	//(serv.*f[i])(*this, mes);
-	if (i == 0 || i == 1 || i == 5 || i == 6)
+	if (i == 0 || i == 1 || i == 5 || i == 6 || i == 7)
 		(serv.*f[i])(*this, mes);
 }
 

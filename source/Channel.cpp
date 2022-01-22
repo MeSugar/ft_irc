@@ -16,7 +16,7 @@ Channel& Channel::operator=(Channel const &other)
 	return (*this);
 }
 
-Channel::Channel(std::string name, Client* first) : _server(server), _name(name), _isInviteOnly(false), _isPrivate(false), _isSecret(false),
+Channel::Channel(Server* server, std::string name, Client* first) : _server(server), _name(name), _isInviteOnly(false), _isPrivate(false), _isSecret(false),
 													_opTopicOnly(false), _noMessagesFromOutside(false), _isModerated(false), _user_limit(MAX_MEMBERS)
 {
 	_members.push_back(first);
@@ -24,7 +24,7 @@ Channel::Channel(std::string name, Client* first) : _server(server), _name(name)
 	first->add_channel(this);
 }
 
-static bool	mask_compare(char* str, char* mask)
+static bool	mask_compare(const char* str, const char* mask)
 {
 	if (*str == *mask && *str != '\0')
 		return (mask_compare(str + 1, mask + 1));
@@ -40,20 +40,20 @@ static bool	mask_compare(char* str, char* mask)
 bool	Channel::check_bans(const Client& client)
 {
 	for (std::vector<std::string>::iterator it = _bans.begin(); it != _bans.end(); it++)
-	(
+	{
 		size_t	i;
 		size_t	start = 0;
 		i = (*it).find('!', start);
-		if (mask_compare(client.getNickname().c_str(), substr(start, i - start).c_str()))
+		if (mask_compare(client.getNickname().c_str(), (*it).substr(start, i - start).c_str()))
 			return (true);
 		start = i + 1;
 		i = (*it).find('@', start);
-		if (mask_compare(client.getUsername().c_str(), substr(start, i - start).c_str()))
+		if (mask_compare(client.getUsername().c_str(), (*it).substr(start, i - start).c_str()))
 			return (true);
 		start = i + 1;
-		if (mask_compare(client.getHostname().c_str(), substr(start, (*it).size() - start).c_str()))
+		if (mask_compare(client.getHostname().c_str(), (*it).substr(start, (*it).size() - start).c_str()))
 			return (true);
-	)
+	}
 	return (false);
 }
 
@@ -120,7 +120,7 @@ bool	Channel::have_operator(const std::string& nickname)
 
 bool	Channel::have_speaker(const std::string& nickname)
 {
-	for (std::vector<Client *>::iterator it = _speakers.begin(); it != _speakers.end(); it++)
+	for (std::vector<std::string>::iterator it = _speakers.begin(); it != _speakers.end(); it++)
 		if (*it == nickname)
 			return (true);
 	return (false);
@@ -193,7 +193,7 @@ void	Channel::remove_operator(const std::string& nickname)
 		if ((*it)->getNickname() == nickname)
 		{	
 			_channelOperators.erase(it);
-			send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, "-o", client->getNickname()));
+			send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, "-o", nickname));
 			break;
 		}
 }
@@ -211,7 +211,7 @@ void	Channel::add_speaker(const std::string& nickname)
 
 void	Channel::remove_speaker(const std::string& nickname)
 {
-	for (std::vector<Client *>::iterator it = _speakers.begin(); it != _speakers.end(); it++)
+	for (std::vector<std::string>::iterator it = _speakers.begin(); it != _speakers.end(); it++)
 		if (*it == nickname)
 		{	
 			_speakers.erase(it);
@@ -288,7 +288,7 @@ void	Channel::set_topic_status(bool status)
 	send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, mode, std::string()));
 }
 
-void	Channel::set_topic_status(bool status)
+void	Channel::set_outside_status(bool status)
 {
 	_noMessagesFromOutside = status;
 	std::string mode;
@@ -312,7 +312,7 @@ void	Channel::set_moder_status(bool status)
 
 void	Channel::set_user_limit(std::string n, char sign)
 {
-	if (sign = '+')
+	if (sign == '+')
 	{	
 		_user_limit = atoi(n.c_str());
 		send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, "+l", n));
@@ -376,12 +376,12 @@ const bool&	Channel::get_moder_status() const
 	return (_isModerated);
 }
 
-const size_t&		get_user_limit() const
+const size_t&	Channel::get_user_limit() const
 {
 	return (_user_limit);
 }
 
-const std::vector<std::string>&	get_banlist() const
+const std::vector<std::string>&	Channel::get_banlist() const
 {
 	return (_bans);
 }

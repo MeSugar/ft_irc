@@ -5,6 +5,7 @@
 #define MAX_MEMBERS 65535
 
 class Client;
+class Server;
 
 class Channel
 {
