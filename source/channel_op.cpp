@@ -433,8 +433,10 @@ void	Server::channel_mods_rpl(Channel* channel, Client& client)
 	}
 	sendReply(generateNormalReply(_servername, RPL_CHANNELMODEIS, channel->get_name(), tmp, ss.str()));
 	if (channel->have_key())
+	{	
 		tmp = "+k";
-	sendReply(generateNormalReply(_servername, RPL_CHANNELMODEIS, channel->get_name(), tmp, channel->get_key()));
+		sendReply(generateNormalReply(_servername, RPL_CHANNELMODEIS, channel->get_name(), tmp, channel->get_key()));
+	}
 }
 
 void	Server::banlist_rpl(Channel* channel, Client& client)
