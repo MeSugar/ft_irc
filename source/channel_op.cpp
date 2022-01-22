@@ -566,6 +566,11 @@ void	Server::user_mods_rpl(Client& client)
 
 void	Server::user_mode(Client &client, Message &msg)
 {
+	if (!findClient(msg.params[0], _clients))
+	{
+		sendReply(generateErrorReply(_servername, ERR_NOSUCHNICK, msg.params[0]));
+		return;
+	}
 	if (client.getNickname() != msg.params[0])
 	{	
 		sendReply(generateErrorReply(_servername, ERR_USERSDONTMATCH));
