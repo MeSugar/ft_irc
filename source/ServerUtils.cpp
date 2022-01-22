@@ -28,10 +28,10 @@ bool	Server::validateNickname(std::string const &nick)
 		size_t i = 0;
 		while (i < len)
 		{
-			if (!std::isalnum(nick[i]) || nick[i] != '-'
-				|| nick[i] != '[' || nick[i] != ']'
-				|| nick[i] != '{' || nick[i] != '}'
-				|| nick[i] != '^' || nick[i] != '\\')
+			if (!std::isalnum(nick[i]) && nick[i] != '-'
+				&& nick[i] != '[' && nick[i] != ']'
+				&& nick[i] != '{' && nick[i] != '}'
+				&& nick[i] != '^' && nick[i] != '\\')
 				return false;
 			i++;
 		}
