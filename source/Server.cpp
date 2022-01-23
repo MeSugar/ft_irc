@@ -72,8 +72,8 @@ int Server::chat(int sockfd)
 {
 	Client client(sockfd);
 	Message msg; 
-	while (true)
-	{
+// 	while (true)
+// 	{
 		if (this->_recv(sockfd) == 0)
 		{
 			msg = client.parse(this->_message.c_str());
@@ -82,18 +82,7 @@ int Server::chat(int sockfd)
 		// this->commandHandler(client, client.parse(str)); нужно передать объект клиента или создавать его в этой функции
 		// тут не отправляем ответ, этим занимаются команды (у объекта клиента хранится в который его отправляем sockfd)
 		// send(sockfd, str.c_str(), str.length(), 0);
-	}
-	return (0);
-}
-
-int Server::run()
-{
-	this->s->_socket();
-	std::cout << "Main server: " << this->s->getSockfd() << std::endl;
-	this->s->_bind();
-	this->s->_linsten(5);
-	this->s->_accept();
-	this->chat(this->s->getConnfd());
+// 	}
 	return (0);
 }
 
