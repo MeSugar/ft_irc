@@ -3,9 +3,6 @@
 void	Server::commandHandler(Client &client, Message &msg)
 {
 	this->printLog(msg);
-	std::cout << "Registration status: " << client.getRegistrationStatus() << std::endl;
-	std::cout << "Nickname: " << client.getNickname() << std::endl;
-	std::cout << "Username: " << client.getUsername() << std::endl;
 	if (this->_commands.find(msg.command) != this->_commands.end())
 		this->commandProcessor(client, msg);
 	else
@@ -111,8 +108,8 @@ void	Server::commandPRIVMSG(Client &client, Message &msg)
 				for (std::set<std::string>::iterator it = recipients->begin(); it != recipients->end(); it++)
 				{
 					Client &cl = *this->findClient((*it), this->_clients);
-					if (cl.getAwayStatus())
-						sendReply(client, generateNormalReply(this->_servername, RPL_AWAY, client.getNickname(), "PRIVMSG", cl.getNickname() ,cl.getAwayMessage()));
+					if (cl.getAwayStatus() && msg.command != "NOTICE")
+						sendReply(client, generateNormalReply(this->_servername, RPL_AWAY, client.getNickname(), "PRIVMSG", cl.getNickname(), cl.getAwayMessage()));
 					else
 						sendReply(cl, msg.params[1] + "\n");
 				}
@@ -120,6 +117,11 @@ void	Server::commandPRIVMSG(Client &client, Message &msg)
 			}
 		}
 	}
+}
+
+void	Server::commandNOTICE(Client &client, Message &msg)
+{
+	this->commandPRIVMSG(client, msg);
 }
 
 void	Server::commandAWAY(Client &client, Message &msg)
