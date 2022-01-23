@@ -11,6 +11,7 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "Reply.hpp"
+#include "Socket.hpp"
 
 class Client;
 class Channel;
@@ -19,7 +20,7 @@ struct Message;
 
 typedef std::map<std::string, void (Server::*)(Client &, Message &)> CommandsMap;
 
-class Server : public TemplateRun
+class Server
 {
 	private:
 		int										_port;
@@ -37,6 +38,7 @@ class Server : public TemplateRun
 
 		std::string								_message;
 		std::vector<struct pollfd>				_userfds;
+        Socket									*s;
 
 		Server(Server const &other);
 		Server &operator=(Server const &other);
@@ -75,7 +77,7 @@ class Server : public TemplateRun
 		// connection managment
 		virtual int run();
     virtual int loop();
-    virtual int chat(int fdsock);
+    virtual int chat(Client &client);
 		int _recv(int sockfd);
 		int _creatpoll(int sockfd);
 		int _handler(std::string msg, int sockfd);

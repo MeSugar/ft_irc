@@ -2,7 +2,6 @@
 
 #include <cctype>
 #include <cstdlib>
-#include "TemplateRun.hpp"
 #include "Server.hpp"
 #include "Channel.hpp"
 
@@ -63,6 +62,7 @@ class Client
 		std::string const	&getHostname() const;
 
 		// setters
+		void	setClientFd(int fd);
 		void	setPassword(std::string const &pass);
 		void	setNickname(std::string const &nick);
 		void	setHostname(std::string const &hostname);

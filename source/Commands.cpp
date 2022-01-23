@@ -3,6 +3,9 @@
 void	Server::commandHandler(Client &client, Message &msg)
 {
 	this->printLog(msg);
+	std::cout << "Registration status: " << client.getRegistrationStatus() << std::endl;
+	std::cout << "Nickname: " << client.getNickname() << std::endl;
+	std::cout << "Username: " << client.getUsername() << std::endl;
 	if (this->_commands.find(msg.command) != this->_commands.end())
 		this->commandProcessor(client, msg);
 	else

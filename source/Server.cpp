@@ -1,9 +1,10 @@
 #include "../include/Server.hpp"
 
-Server::Server(int port, std::string const &password) : TemplateRun(port, password)
+Server::Server(int port, std::string const &password)
 {
 	this->_port = port;
 	this->_password = password;
+	this->s = new Socket(port, password);
 	this->_servername = "~Nasha Iro4ka 1.0~";
 	this->_operatorHosts.push_back("host");
 	this->_operators.insert(std::pair<std::string, std::string>("admin", "admin"));
@@ -36,10 +37,14 @@ Server::~Server() {}
 int Server::_creatpoll(int sockfd) {
 	struct pollfd pf;
 
-	pf.fd = sockfd;
-	pf.events = POLLIN;
-	pf.revents = 0;
-	this->_userfds.push_back(pf);
+	if (sockfd > 0)
+	{
+		pf.fd = sockfd;
+		pf.events = POLLIN;
+		pf.revents = 0;
+		this->_userfds.push_back(pf);
+		this->_clients.push_back(new Client(sockfd));
+	}
 	return (0);
 }
 
@@ -68,17 +73,17 @@ int Server::_recv(int sockfd) {
 	return (0);
 }
 
-int Server::chat(int sockfd)
+int Server::chat(Client &client)
 {
-	Client client(sockfd);
 	Message msg; 
 // 	while (true)
 // 	{
-		if (this->_recv(sockfd) == 0)
-		{
-			msg = client.parse(this->_message.c_str());
-			this->commandHandler(client, msg);
-		}
+	if (this->_recv(client.getClientFd()) == 0)
+	{
+		// std::cout << this->_message << std::endl;
+		msg = client.parse(this->_message.c_str());
+		this->commandHandler(client, msg);
+	}
 		// this->commandHandler(client, client.parse(str)); нужно передать объект клиента или создавать его в этой функции
 		// тут не отправляем ответ, этим занимаются команды (у объекта клиента хранится в который его отправляем sockfd)
 		// send(sockfd, str.c_str(), str.length(), 0);
@@ -102,20 +107,22 @@ int Server::loop() {
 	while (true) {
 		this->s->_accept();
 		this->_creatpoll(this->s->getConnfd());
-		std::cout << "Vector userfds: \n";
-		for (std::vector<struct pollfd>::iterator it = this->_userfds.begin(); it != this->_userfds.end(); it++) {
-			std::cout << "\tfd: " << (*it).fd << "\tevent: " << (*it).events << std::endl;
-		}
+		// std::cout << "Vector userfds: \n";
+		// for (std::vector<struct pollfd>::iterator it = this->_userfds.begin(); it != this->_userfds.end(); it++) {
+		// 	std::cout << "\tfd: " << (*it).fd << "\tevent: " << (*it).events << std::endl;
+		// }
 		// this->_clients.push_back(new Client());
-		int ret =  poll(this->_userfds.data(), this->_userfds.size(), timeout);
+		int ret = poll(this->_userfds.data(), this->_userfds.size(), timeout);
 		if (ret == 0)
-			std::cout << "Error: timeout\n";
+		{}
+			// std::cout << "Error: timeout\n";
 		else if (ret != -1) {
 			for (size_t it = 0; it < this->_userfds.size(); it++) {
 				if (this->_userfds[it].revents & POLLIN) {
-					this->chat(this->_userfds[it].fd);
+					this->chat(*this->_clients[it]);
 					this->_userfds[it].revents = 0;
 				}
+
 			}
 		}
 	}

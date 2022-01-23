@@ -9,7 +9,7 @@ int main(int ac, char **av)
 		int num;
 		ss >> num;
 		Server serv(num, av[2]);
-		serv.run();
+		serv.loop();
 		return 0;
 	}
 	std::cout << "Wrong number of arguments" << std::endl;

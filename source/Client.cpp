@@ -17,6 +17,7 @@ std::string const	&Client::getUsername() const { return this->_username; }
 std::string	const	&Client::getHostname() const { return this->_hostname; } 
 
 // setters
+void	Client::setClientFd(int fd) { this->_clientFd = fd; }
 void    Client::setPassword(std::string const &pass) { this->_password = pass; }
 
 void	Client::setNickname(std::string const &nick)

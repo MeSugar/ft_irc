@@ -94,7 +94,7 @@ void	Server::addClient(Client *client)
 			&& !client->getNickname().empty() && !client->getUsername().empty())
 	{
 		client->setRegistrationStatus();
-		this->_clients.push_back(client);
+		// this->_clients.push_back(client);
 		this->_connectedClients.push_back(client);
 		this->sendMOTD(*client);
 	}
