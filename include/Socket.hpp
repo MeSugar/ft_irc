@@ -13,7 +13,6 @@
 #include <sstream>
 #include <poll.h>
 #include <arpa/inet.h>
-#include <fcntl.h>
 
 #define MAX 80
 

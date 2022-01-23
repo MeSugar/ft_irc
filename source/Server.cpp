@@ -4,7 +4,7 @@ Server::Server(int port, std::string const &password) : TemplateRun(port, passwo
 {
 	this->_port = port;
 	this->_password = password;
-	this->_servername = "Nasha Iro4ka 1.0";
+	this->_servername = "~Nasha Iro4ka 1.0~";
 	this->_operatorHosts.push_back("host");
 	this->_operators.insert(std::pair<std::string, std::string>("admin", "admin"));
 	this->_commands.insert(std::make_pair("PASS", &Server::commandPASS));
@@ -12,21 +12,22 @@ Server::Server(int port, std::string const &password) : TemplateRun(port, passwo
 	this->_commands.insert(std::make_pair("USER", &Server::commandUSER));
 	this->_commands.insert(std::make_pair("OPER", &Server::commandOPER));
 	// this->_commands.insert(std::make_pair("QUIT", &Server::commandQUIT));
-	// this->_commands.insert(std::make_pair("JOIN", &Server::commandJOIN));
-	// this->_commands.insert(std::make_pair("PART", &Server::commandPART));
+	this->_commands.insert(std::make_pair("JOIN", &Server::commandJOIN));
+	this->_commands.insert(std::make_pair("PART", &Server::commandPART));
 	// this->_commands.insert(std::make_pair("MODE", &Server::commandMODE));
 	// this->_commands.insert(std::make_pair("TOPIC", &Server::commandTOPIC));
 	// this->_commands.insert(std::make_pair("NAMES", &Server::commandNAMES));
 	// this->_commands.insert(std::make_pair("LIST", &Server::commandLIST));
 	// this->_commands.insert(std::make_pair("INVITE", &Server::commandINVITE));
-	// this->_commands.insert(std::make_pair("LICK", &Server::commandLICK));
-	// this->_commands.insert(std::make_pair("PRIVMSG", &Server::commandPRIVMSG));
+	// this->_commands.insert(std::make_pair("KICK", &Server::commandLICK));
+	this->_commands.insert(std::make_pair("PRIVMSG", &Server::commandPRIVMSG));
 	// this->_commands.insert(std::make_pair("NOTICE", &Server::commandNOTICE));
 	// this->_commands.insert(std::make_pair("KILL", &Server::commandKILL));
 	// this->_commands.insert(std::make_pair("PING", &Server::commandPING));
 	// this->_commands.insert(std::make_pair("PONG", &Server::commandPONG));
 	// this->_commands.insert(std::make_pair("REHASH", &Server::commandREHASH));
 	// this->_commands.insert(std::make_pair("RESTART", &Server::commandRESTART));
+	this->_commands.insert(std::make_pair("AWAY", &Server::commandAWAY));
 	this->parseMOTD();
 }
 
@@ -35,12 +36,10 @@ Server::~Server() {}
 int Server::_creatpoll(int sockfd) {
 	struct pollfd pf;
 
-	if (sockfd > 0) {
-		pf.fd = sockfd;
-		pf.events = POLLIN;
-		pf.revents = 0;
-		this->_userfds.push_back(pf);
-	}
+	pf.fd = sockfd;
+	pf.events = POLLIN;
+	pf.revents = 0;
+	this->_userfds.push_back(pf);
 	return (0);
 }
 
@@ -59,31 +58,42 @@ int Server::_recv(int sockfd) {
 	}
 	if (msg.length() > 512)
 		msg = msg.substr(0, 510) + "\r\n";
-	while (msg.find("\r\n") != std::string::npos)
-		msg.replace(msg.find("\r\n"), 2, "\n");
+	else
+	{
+		while (msg.find("\n") != std::string::npos)
+			msg.replace(msg.find("\n"), 1, "\r");
+		msg += "\n";
+	}
 	this->_message = msg;
 	return (0);
 }
 
-int Server::_handler(std::string msg, int sockfd) {
-	std::string newMsg;
-
-	if (msg.find("Hello") != std::string::npos) {
-		newMsg = "world!";
-		send(sockfd, newMsg.c_str(), newMsg.length(), 0);
+int Server::chat(int sockfd)
+{
+	Client client(sockfd);
+	Message msg; 
+	while (true)
+	{
+		if (this->_recv(sockfd) == 0)
+		{
+			msg = client.parse(this->_message.c_str());
+			this->commandHandler(client, msg);
+		}
+		// this->commandHandler(client, client.parse(str)); нужно передать объект клиента или создавать его в этой функции
+		// тут не отправляем ответ, этим занимаются команды (у объекта клиента хранится в который его отправляем sockfd)
+		// send(sockfd, str.c_str(), str.length(), 0);
 	}
 	return (0);
 }
 
-int Server::chat(int sockfd) {
-	if (this->_recv(sockfd) == 0) {
-		std::cout << "msg: " << this->_message << std::endl;
-		this->_handler(this->_message, sockfd);
-	}
-		// this->commandHandler(client, client.parse(str)); нужно передать объект клиента или создавать его в этой функции
-		// тут не отправляем ответ, этим занимаются команды (у объекта клиента хранится в который его отправляем sockfd)
-		// send(sockfd, str.c_str(), str.length(), 0);
-	// }
+int Server::run()
+{
+	this->s->_socket();
+	std::cout << "Main server: " << this->s->getSockfd() << std::endl;
+	this->s->_bind();
+	this->s->_linsten(5);
+	this->s->_accept();
+	this->chat(this->s->getConnfd());
 	return (0);
 }
 
@@ -107,7 +117,7 @@ int Server::loop() {
 		for (std::vector<struct pollfd>::iterator it = this->_userfds.begin(); it != this->_userfds.end(); it++) {
 			std::cout << "\tfd: " << (*it).fd << "\tevent: " << (*it).events << std::endl;
 		}
-		this->_clients.push_back(new Client());
+		// this->_clients.push_back(new Client());
 		int ret =  poll(this->_userfds.data(), this->_userfds.size(), timeout);
 		if (ret == 0)
 			std::cout << "Error: timeout\n";

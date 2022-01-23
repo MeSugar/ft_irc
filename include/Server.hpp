@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 #include <fstream>
 #include "Client.hpp"
@@ -42,16 +43,31 @@ class Server : public TemplateRun
 		
 		// utils
 		void	parseMOTD(); // get message of the day
-		void	sendMOTD();
-		void	sendReply(std::string const &reply) const; // reply management (just for testing, need to be rewritten to send reply to user socket)
+		void	printLog(Message &msg) const;
+		void	sendMOTD(Client &client);
+		void	sendReply(Client &client, std::string const &reply) const; // sends reply to clientfd
 		bool	validateNickname(std::string const &nick); // check if nickname contains invalid characters
 		bool	comparePrefixAndNick(std::string const &prefix, Client const &client);
 		Client	*findClient(std::string const &nick, std::vector<Client *> &clients); // find a client using nickname
 		void	removeClient(Client *client, std::vector<Client *> &clients); // removes a client from a given database
 		void	addClient(Client *client); // adds a client to clients database
 		int		checkOperatorList(std::string const &user, std::string const &pass); // checks whether _operators list contains given user and given pass matches
-		bool	checkHostnameList(std::string const &host); // checks whether server allowes to become an IRC operator being connected from the client's host 
+		bool	checkHostnameList(std::string const &host); // checks whether server allows to become an IRC operator being connected from the client's host
+		bool	validateMask(Client &client, const std::string &mask); // checks whether the mask have at least one '.'  in it and no wildcards following the last '.'
+		bool	checkUserHostnameByMask(Client const &client, const std::string &mask); // checks whether hostname matches the mask 
+		bool	containsText(std::vector<std::string> &params); //checks whether params contain text to be sent
+		std::set<std::string>	*checkAndComposeRecipientsList(Client &client, std::vector<std::string> &params);//checks whether list contains existing
+																												//channel-, server-, host user names
+																												//and composes a list of user nicknames to whom
+																												//a message should be sent
+		bool	addRecipientToList(std::set<std::string> &recipients, Client &from, Client *to); //tries to add the client to the list if it's not already present																										
 
+		Channel*	find_channel(const std::string& name); // find a channel using nickname
+
+		Channel*	add_channel(std::string name, Client& first); //allocates and adds channel, with the first client as its operator
+		void		remove_channel(Channel *to_remove); //removes empty channel from the server
+		bool		check_channel_name(const std::string& str) const; //checks if the name is valid
+		void 		divide_comma(std::vector<std::string> &to, std::string str); //splits a given string with comma as a delimiter
 	public:
 		Server(int port, std::string const &password);
 		~Server();
@@ -71,4 +87,11 @@ class Server : public TemplateRun
 		void	commandNICK(Client &client, Message &msg);
 		void	commandUSER(Client &client, Message &msg);
 		void	commandOPER(Client &client, Message &msg);
+		void	commandJOIN(Client &client, Message &msg);
+		void	commandPART(Client &client, Message &msg);
+		void	commandAWAY(Client &client, Message &msg);
+
+		
+		void	commandPRIVMSG(Client &client, Message &msg);
+
 };

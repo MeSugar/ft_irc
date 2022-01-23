@@ -1,13 +1,16 @@
 #include "../include/Client.hpp"
 
-Client::Client()
-: _isRegistered(false), _channelsLimit(10)
+Client::Client(int sockfd)
+: _clientFd(sockfd), _isRegistered(false), _isAway(false), _channelsLimit(10)
 {}
 
 Client::~Client() {}
 
 // getters
+int					Client::getClientFd() const { return this->_clientFd; }
 bool				Client::getRegistrationStatus() const { return this->_isRegistered; }
+bool				Client::getAwayStatus() const { return this->_isAway; }
+std::string	const	&Client::getAwayMessage() const { return this->_awayMessage; }
 std::string	const	&Client::getPassword() const { return this->_password; }
 std::string const	&Client::getNickname() const { return this->_nickname; }
 std::string const	&Client::getUsername() const { return this->_username; }
@@ -23,7 +26,19 @@ void	Client::setNickname(std::string const &nick)
 }
 
 void	Client::setRegistrationStatus() { this->_isRegistered = true; }
+void	Client::setAwayStatus(const std::string &msg)
+{
+	if (msg.size() > 0)
+	{
+		this->_awayMessage = msg;
+		this->_isAway = true;
+	}
+	else
+		this->_isAway = false;
+}
+
 void	Client::setOperatorStatus() { this->_isOperator = true; }
+void	Client::setHostname(std::string const &hostname) { this->_hostname = hostname; }
 
 void	Client::setUser(std::vector<std::string> &params)
 {
@@ -38,7 +53,7 @@ void	Client::setUser(std::vector<std::string> &params)
 }
 
 // parser utils
-int     Client::check_length(char* buf)
+int     Client::check_length(const char* buf)
 {
 	int	i;
 	
@@ -51,7 +66,7 @@ int     Client::check_length(char* buf)
 		return (0);
 }
 
-int		Client::get_prefix(char* buf, Message& res)
+int		Client::get_prefix(const char* buf, Message& res)
 {
 	int	i;
 	
@@ -65,17 +80,17 @@ int		Client::get_prefix(char* buf, Message& res)
 	return (i);
 }
 
-void	Client::get_command(char *buf, Message& res, int& i)
+void	Client::get_command(const char *buf, Message& res, int& i)
 {
 	int	start = i;
 
 	while (buf[i] != '\r' && buf[i] != ' ')
 		i++;
 	if (i - start > 0)
-		res.prefix.append(&buf[start], i - start);
+		res.command.append(&buf[start], i - start);
 }
 
-void	Client::get_params(char *buf, Message& res, int& i)
+void	Client::get_params(const char *buf, Message& res, int& i)
 {
 	int	start;
 	std::string	temp;
@@ -105,7 +120,7 @@ int		Client::check_command(Message& mes)
 	const char*	com_array[] = {"PASS", "NICK", "USER", "OPER", "QUIT",
 						"JOIN", "PART", "MODE", "TOPIC", "NAMES", "LIST", "INVITE", "KICK",
 						"PRIVMSG", "NOTICE",
-						"KILL", "PING", "PONG"};
+						"KILL", "PING", "PONG", "AWAY"};
 	if (!mes.command.size())
 	{
 		if (!mes.prefix.size() && !mes.params.size())
@@ -114,7 +129,7 @@ int		Client::check_command(Message& mes)
 	}
 	if (isalpha(mes.command[0]))
 	{
-		for (int i = 0; i <= 17; i++)
+		for (int i = 0; i <= 18; i++)
 			if (mes.command == com_array[i])
 				return (i);
 	}
@@ -138,7 +153,7 @@ int		Client::check_command(Message& mes)
 }
 
 // parser
-Message		Client::parse(char* buf)
+Message		Client::parse(const char* buf)
 {
 	Message	res;
 	int		i;
@@ -153,4 +168,36 @@ Message		Client::parse(char* buf)
 	if (buf[i] != '\r')
 		get_params(buf, res, i);
 	return (res);
+}
+
+
+// channel utils
+bool	Client::check_invitation(const std::string&	ch_name)
+{
+	for (std::vector<std::string>::iterator it = _channels_invited.begin(); it != _channels_invited.end(); it++)
+		if (*it == ch_name)
+			return (true);
+	return (false);
+}
+
+void	Client::add_channel(Channel* channel)
+{
+	_channels.push_back(channel);
+}
+
+void	Client::remove_channel(Channel *channel)
+{
+	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++)
+		if (*it == channel)
+		{	
+			_channels.erase(it);
+			break;
+		}
+}
+
+bool	Client::under_channels_limit() const
+{
+	if (_channels.size() < _channelsLimit)
+		return (true);
+	return (false);
 }
