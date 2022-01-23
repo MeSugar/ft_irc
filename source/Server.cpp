@@ -68,27 +68,12 @@ int Server::_recv(int sockfd) {
 	return (0);
 }
 
-// int Server::_handler(std::string msg, int sockfd) {
-// 	std::string newMsg;
-// 	// std::cout << "sockfd: " << sockfd << std::endl;
-// 	int sockfd_ = sockfd;
-// 	sockfd_++;
-// 	// check connection
-// 	// if !connection {check command for connection}
-// 	// else {other command}
-// 	if (msg.find("Hello") != std::string::npos) {
-// 		newMsg = "world!";
-// 		send(this->s->getConnfd(), newMsg.c_str(), newMsg.length(), 0);
-// 	}
-// 	return (0);
-// }
-
 int Server::chat(int sockfd)
 {
 	Client client(sockfd);
 	Message msg; 
-	while (true)
-	{
+// 	while (true)
+// 	{
 		if (this->_recv(sockfd) == 0)
 		{
 			msg = client.parse(this->_message.c_str());
@@ -97,7 +82,7 @@ int Server::chat(int sockfd)
 		// this->commandHandler(client, client.parse(str)); нужно передать объект клиента или создавать его в этой функции
 		// тут не отправляем ответ, этим занимаются команды (у объекта клиента хранится в который его отправляем sockfd)
 		// send(sockfd, str.c_str(), str.length(), 0);
-	}
+// 	}
 	return (0);
 }
 
@@ -107,90 +92,31 @@ int Server::run()
 	std::cout << "Main server: " << this->s->getSockfd() << std::endl;
 	this->s->_bind();
 	this->s->_linsten(5);
-	this->s->_accept();
-	// this->_creatpoll(this->s->getConnfd());
-	// this->_clients.push_back(new Client());
-	// this->s->getConnfd()
-	this->chat(this->s->getConnfd());
-	// close(this->s->getSockfd());
 	return (0);
 }
 
-// int Server::loop()
-// {
-// 	struct pollfd fds[2];
-// 	fds[0].fd = sock1;
-// 	fds[0].events = POLLIN;
-	
-// 	// а от sock2 - исходящих
-// 	fds[1].fd = sock2;
-// 	fds[1].events = POLLOUT;
-	
-// 	// ждём до 10 секунд
-// 	int ret = poll( &fds, 2, 10000 );
-// 	// проверяем успешность вызова
-// 	if ( ret == -1 )
-// 		// ошибка
-// 	else if ( ret == 0 )
-// 		// таймаут, событий не произошло
-// 	else
-// 	{
-// 		// обнаружили событие, обнулим revents чтобы можно было переиспользовать структуру
-// 		if ( pfd[0].revents & POLLIN )
-// 			pfd[0].revents = 0;
-// 			// обработка входных данных от sock1
+int Server::loop() {
+	const id_t	timeout(1000);
 
-// 		if ( pfd[1].revents & POLLOUT )
-// 			pfd[1].revents = 0;
-// 			// обработка исходящих данных от sock2
-// 	}
-// 	return (0);
-// }
-
-// int Server::loop() {
-// 	this->run();
-// 	std::cout << "Size: " << this->_userfds.size() << std::endl;
-// 	// const id_t								timeout(2);
-// 	struct pollfd 			pfarr[10];
-// 	int i = 0;
-// 	while (true) {
-// 		this->s->_accept();
-
-// 		// struct pollfd pf;
-// 		// pf.fd = this->s->getConnfd();
-// 		// pf.events = POLLIN;
-// 		// pf.revents = 0;
-// 		std::cout << "fd: " << pfarr[i].fd << "\t" << pfarr[i].events << "\t" << pfarr[i].revents << std::endl;
-// 		this->_creatpoll(this->s->getConnfd());
-// 		pfarr[i] = this->_userfds[i];
-// 		// std::cout << "Connfd: " << this->s->getConnfd() << std::endl;
-// 		// std::cout << "Size: " << this->_userfds.size() << std::endl;
-// 		// std::cout << "Data[0]: " << this->_userfds[0].fd << "\t" << this->_userfds[0].events << std::endl;
-// 		// char	host[INET_ADDRSTRLEN];
-// 		// inet_ntop(AF_INET, &(this->s->res->ai_addr), host, INET_ADDRSTRLEN);
-// 		std::cout << "Vector userfds: \n";
-// 		for (std::vector<struct pollfd>::iterator it = this->_userfds.begin(); it != this->_userfds.end(); it++) {
-// 			std::cout << "\tfd: " << (*it).fd << "\tevent: " << (*it).events << std::endl;
-// 		}
-// 		this->_clients.push_back(new Client());
-// 		// std::vector<struct pollfd> fds = this->_userfds;
-// 		// fds.push_back((struct pollfd){0, 0, 0});
-// 		int ret =  poll((struct pollfd *)this->_userfds.data(), this->_userfds.size(), -1);
-// 		// int ret =  poll((struct pollfd *)&pfarr, 10, timeout);
-// 		if (ret == 0)
-// 			std::cout << "Error: timeout\n";
-// 		else if (ret != -1) {
-// 			std::cout << "Wow\n";
-// 			pfarr[i].events = POLLIN;
-// 			for (int it = 0; it < i + 1; it++) {
-// 				int a  = pfarr[it].revents & POLLIN;
-// 				std::cout << a << std::endl;
-// 				if (pfarr[it].revents & POLLIN) {
-// 					pfarr[it].revents = 0;
-// 					this->chat(pfarr[it].fd);
-// 				}
-// 			}
-// 		}
-// 		i++;
-// 	}
-// }
+	this->run();
+	while (true) {
+		this->s->_accept();
+		this->_creatpoll(this->s->getConnfd());
+		std::cout << "Vector userfds: \n";
+		for (std::vector<struct pollfd>::iterator it = this->_userfds.begin(); it != this->_userfds.end(); it++) {
+			std::cout << "\tfd: " << (*it).fd << "\tevent: " << (*it).events << std::endl;
+		}
+		// this->_clients.push_back(new Client());
+		int ret =  poll(this->_userfds.data(), this->_userfds.size(), timeout);
+		if (ret == 0)
+			std::cout << "Error: timeout\n";
+		else if (ret != -1) {
+			for (size_t it = 0; it < this->_userfds.size(); it++) {
+				if (this->_userfds[it].revents & POLLIN) {
+					this->chat(this->_userfds[it].fd);
+					this->_userfds[it].revents = 0;
+				}
+			}
+		}
+	}
+}
