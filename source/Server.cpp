@@ -22,7 +22,7 @@ Server::Server(int port, std::string const &password)
 	// this->_commands.insert(std::make_pair("INVITE", &Server::commandINVITE));
 	// this->_commands.insert(std::make_pair("KICK", &Server::commandLICK));
 	this->_commands.insert(std::make_pair("PRIVMSG", &Server::commandPRIVMSG));
-	// this->_commands.insert(std::make_pair("NOTICE", &Server::commandNOTICE));
+	this->_commands.insert(std::make_pair("NOTICE", &Server::commandNOTICE));
 	// this->_commands.insert(std::make_pair("KILL", &Server::commandKILL));
 	// this->_commands.insert(std::make_pair("PING", &Server::commandPING));
 	// this->_commands.insert(std::make_pair("PONG", &Server::commandPONG));
@@ -76,18 +76,11 @@ int Server::_recv(int sockfd) {
 int Server::chat(Client &client)
 {
 	Message msg; 
-// 	while (true)
-// 	{
 	if (this->_recv(client.getClientFd()) == 0)
 	{
-		// std::cout << this->_message << std::endl;
 		msg = client.parse(this->_message.c_str());
 		this->commandHandler(client, msg);
 	}
-		// this->commandHandler(client, client.parse(str)); нужно передать объект клиента или создавать его в этой функции
-		// тут не отправляем ответ, этим занимаются команды (у объекта клиента хранится в который его отправляем sockfd)
-		// send(sockfd, str.c_str(), str.length(), 0);
-// 	}
 	return (0);
 }
 
@@ -122,7 +115,6 @@ int Server::loop() {
 					this->chat(*this->_clients[it]);
 					this->_userfds[it].revents = 0;
 				}
-
 			}
 		}
 	}

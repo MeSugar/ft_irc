@@ -95,5 +95,6 @@ class Server
 
 		
 		void	commandPRIVMSG(Client &client, Message &msg);
+		void	commandNOTICE(Client &client, Message &msg);
 
 };
