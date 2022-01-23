@@ -9,6 +9,7 @@ void	Server::server_test_client()
 	Client	test_client;
 
 	test_client.setRegistrationStatus();
+	test_client.setNickname("test_client");
 	test_client.client_test_loop(*this);
 }
 
@@ -133,7 +134,7 @@ void Server::commandJOIN(Client& client, Message& msg)
 				sendReply(generateNormalReply(_servername, RPL_NOTOPIC, *it));
 			Message  mes;
 			mes.params.push_back(*it);
-			//commandNAMES(client, mes);
+			commandNAMES(client, mes);
 		}
 		else
 		{
@@ -151,7 +152,7 @@ void Server::commandJOIN(Client& client, Message& msg)
 			sendReply(generateNormalReply(_servername, RPL_NOTOPIC, *it));
 			Message  mes;
 			mes.params.push_back(*it);
-			//commandNAMES(client, mes);
+			commandNAMES(client, mes);
 		}
 	}
 }
@@ -391,7 +392,7 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 	{
 		if (!(channel->have_member(param)))
 			sendReply(generateErrorReply(_servername, ERR_NOSUCHNICK, param));
-		else if (sign == '+' && !(channel->have_speaker(param)))
+		else if (sign == '+' && !(channel->have_speaker(param)) && !(channel->have_operator(param)))
 			channel->add_speaker(param);
 		else if (sign == '-' && channel->have_speaker(param))
 			channel->remove_speaker(param);
@@ -647,4 +648,56 @@ void	Server::commandTOPIC(Client &client, Message &msg)
 		else
 			channel->set_topic(msg.params[1]);
 	}
+}
+
+void	Server::all_names_rpl(Client &client)
+{
+	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++)
+	{
+		if (!((*it)->have_member(client)) && ((*it)->get_private_status() || (*it)->get_secret_status()))
+			continue;
+		std::string tmp = (*it)->list_all_members(client);
+		if (!(tmp.empty()))
+			sendReply(generateNormalReply(_servername, RPL_NAMREPLY, (*it)->get_name(), tmp));
+	}
+	std::string tmp;
+	for (std::vector<Client *>::iterator it = _connectedClients.begin(); it != _connectedClients.end(); it++)
+	{
+		if (!((*it)->getRegistrationStatus()) || (*it)->get_invisible())
+			continue;
+		if ((*it)->check_names_visibility(client))
+			tmp += (*it)->getNickname();
+		if ((it + 1) != _connectedClients.end())
+			tmp += ' ';
+	}
+	if (!(tmp.empty()))
+			sendReply(generateNormalReply(_servername, RPL_NAMREPLY, "*", tmp));
+	sendReply(generateNormalReply(_servername, RPL_ENDOFNAMES, "*"));
+}
+
+void	Server::commandNAMES(Client &client, Message &msg)
+{
+	if ((!msg.prefix.empty() && !comparePrefixAndNick(msg.prefix, client)) || !client.getRegistrationStatus())
+		return;
+	if (msg.params.size() > 1)
+		return;
+	if (msg.params.empty())
+	{	
+		all_names_rpl(client);
+		return;
+	}
+	std::vector<std::string>	channels;
+	divide_comma(channels, msg.params[0]);
+	Channel*	channel;
+	for (std::vector<std::string>::iterator it = channels.begin(); it != channels.end(); it++)
+	{
+		if (!(channel = find_channel(*it)))
+			continue;
+		if (!(channel->have_member(client)) && (channel->get_private_status() || channel->get_secret_status()))
+			continue;
+		std::string tmp = channel->list_all_members(client);
+		if (!(tmp.empty()))
+			sendReply(generateNormalReply(_servername, RPL_NAMREPLY, *it, tmp));
+	}
+	sendReply(generateNormalReply(_servername, RPL_ENDOFNAMES, channels.back()));
 }

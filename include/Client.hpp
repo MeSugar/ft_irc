@@ -83,6 +83,7 @@ class Client
 
 		bool	check_invitation(const std::string&	ch_name);
 		bool	under_channels_limit() const;
+		bool	check_names_visibility(const Client& client);
 		
 		// parser
 		Message	parse(const char* buf);

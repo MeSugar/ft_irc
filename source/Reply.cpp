@@ -168,8 +168,8 @@ std::string generateNormalReply(std::string const &from, int const replyCode,
 		// 	return (std::string(prefix + arg1 + " " + arg2 + " " + arg3 + " " + arg4 + " " + arg5 + "\n")); scarry shit
 		case RPL_ENDOFWHO:
 			return (std::string(prefix + arg1 + " :End of /WHO list\n"));
-		// case RPL_NAMREPLY:
-		// 	return (std::string(prefix + arg1 + " :" + arg2 + "\n")); scarry shit
+		case RPL_NAMREPLY:
+		 	return (std::string(prefix + arg1 + " :" + arg2 + "\n"));
 		case RPL_ENDOFNAMES:
 			return (std::string(prefix + arg1 + " :End of /NAMES list\n"));
 		case RPL_LINKS:

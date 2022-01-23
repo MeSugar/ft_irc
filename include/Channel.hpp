@@ -41,13 +41,14 @@ class Channel
 		bool				have_key() const;
 		bool				check_key(std::string key) const;
 		bool				under_user_limit() const;
-		bool				have_member(const Client& client);
-		bool				have_member(const std::string& nickname);
-		bool				have_operator(const Client& client);
-		bool				have_operator(const std::string& nickname);
-		bool				have_speaker(const std::string& nickname);
+		bool				have_member(const Client& client) const;
+		bool				have_member(const std::string& nickname) const;
+		bool				have_operator(const Client& client) const;
+		bool				have_operator(const std::string& nickname) const;
+		bool				have_speaker(const std::string& nickname) const;
 		bool				empty() const;
 		bool				operators_empty() const;
+		std::string			list_all_members(const Client& client) const;
 
 		void				send_message(const std::string& str);
 		

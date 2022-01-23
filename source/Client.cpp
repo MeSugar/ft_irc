@@ -75,6 +75,18 @@ bool	Client::under_channels_limit() const
 	return (false);
 }
 
+bool	Client::check_names_visibility(const Client& client)
+{
+	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++)
+	{
+		if (!((*it)->get_private_status()) && !((*it)->get_secret_status()))
+			return (false);
+		if ((*it)->have_member(client))
+			return (false);
+	}
+	return (true);
+}
+
 // parser utils
 int     Client::check_length(const char* buf)
 {
@@ -197,11 +209,11 @@ void	Client::command_handle(Message& mes, Server& serv)
 {
 	typedef		void (Server::*funptr)(Client&, Message&);
 	funptr		f[] = {&Server::commandPASS, &Server::commandNICK, NULL, NULL, NULL, &Server::commandJOIN, &Server::commandPART,
-						&Server::commandMODE, &Server::commandTOPIC};
+						&Server::commandMODE, &Server::commandTOPIC, &Server::commandNAMES};
 
 	int	i = check_command(mes);
 	//(serv.*f[i])(*this, mes);
-	if (i == 0 || i == 1 || i == 5 || i == 6 || i == 7 || i == 8)
+	if (i == 0 || i == 1 || (i >= 5 && i <= 9))
 		(serv.*f[i])(*this, mes);
 }
 

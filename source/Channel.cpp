@@ -86,41 +86,41 @@ bool	Channel::under_user_limit() const
 	return (false);
 }
 
-bool	Channel::have_member(const Client& client)
+bool	Channel::have_member(const Client& client) const
 {
-	for (std::vector<Client *>::iterator it = _members.begin(); it != _members.end(); it++)
+	for (std::vector<Client *>::const_iterator it = _members.begin(); it != _members.end(); it++)
 		if (*it == &client)
 			return (true);
 	return (false);
 }
 
-bool	Channel::have_member(const std::string& nickname)
+bool	Channel::have_member(const std::string& nickname) const
 {
-	for (std::vector<Client *>::iterator it = _members.begin(); it != _members.end(); it++)
+	for (std::vector<Client *>::const_iterator it = _members.begin(); it != _members.end(); it++)
 		if ((*it)->getNickname() == nickname)
 			return (true);
 	return (false);
 }
 
-bool	Channel::have_operator(const Client& client)
+bool	Channel::have_operator(const Client& client) const
 {
-	for (std::vector<Client *>::iterator it = _channelOperators.begin(); it != _channelOperators.end(); it++)
+	for (std::vector<Client *>::const_iterator it = _channelOperators.begin(); it != _channelOperators.end(); it++)
 		if (*it == &client)
 			return (true);
 	return (false);
 }
 
-bool	Channel::have_operator(const std::string& nickname)
+bool	Channel::have_operator(const std::string& nickname) const
 {
-	for (std::vector<Client *>::iterator it = _channelOperators.begin(); it != _channelOperators.end(); it++)
+	for (std::vector<Client *>::const_iterator it = _channelOperators.begin(); it != _channelOperators.end(); it++)
 		if ((*it)->getNickname() == nickname)
 			return (true);
 	return (false);
 }
 
-bool	Channel::have_speaker(const std::string& nickname)
+bool	Channel::have_speaker(const std::string& nickname) const
 {
-	for (std::vector<std::string>::iterator it = _speakers.begin(); it != _speakers.end(); it++)
+	for (std::vector<std::string>::const_iterator it = _speakers.begin(); it != _speakers.end(); it++)
 		if (*it == nickname)
 			return (true);
 	return (false);
@@ -134,6 +134,26 @@ bool	Channel::empty() const
 bool	Channel::operators_empty() const
 {
 	return (_channelOperators.empty());
+}
+
+std::string	Channel::list_all_members(const Client& client) const
+{
+	std::string res;
+	bool	from_member = have_member(client);
+
+	for (std::vector<Client *>::const_iterator it = _members.begin(); it != _members.end(); it++)
+	{
+		if ((*it)->get_invisible() && !from_member)
+			continue;
+		if (have_operator(**it))
+			res += '@';
+		else if (have_speaker((*it)->getNickname()))
+			res += '+';
+		res += (*it)->getNickname();
+		if ((it + 1) != _members.end())
+			res += ' ';
+	}
+	return (res);
 }
 
 void	Channel::add_member(Client* client)
