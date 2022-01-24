@@ -96,4 +96,5 @@ class Server : public TemplateRun
 		void	commandTOPIC(Client &client, Message &msg);
 		void	commandNAMES(Client &client, Message &msg);
 		void	commandLIST(Client &client, Message &msg);
+		void	commandINVITE(Client &client, Message &msg);
 };

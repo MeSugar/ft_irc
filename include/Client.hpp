@@ -20,6 +20,8 @@ class Client
 	private:
 		bool						_isRegistered;
 		bool						_isOperator;
+		bool						_isAway;
+		std::string					_awayMessage;
 		std::string					_password;
 		std::string					_nickname;
 		std::string					_hostname;
@@ -61,6 +63,8 @@ class Client
 		const bool&			get_receive_notices() const;
 		const bool&			get_receive_wallops() const;
 		const bool&			get_operator_status() const;
+		bool				getAwayStatus() const;
+		std::string	const	&getAwayMessage() const;
 
 		// setters
 		void	setPassword(std::string const &pass);
@@ -80,6 +84,7 @@ class Client
 
 		void	add_channel(Channel* channel);
 		void	remove_channel(Channel *channel);
+		void	add_invite(const std::string& channel);
 
 		bool	check_invitation(const std::string&	ch_name);
 		bool	under_channels_limit() const;

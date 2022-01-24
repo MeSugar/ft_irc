@@ -1,12 +1,14 @@
 #include "../include/Client.hpp"
 
 Client::Client()
-: _isRegistered(false), _isOperator(false), _invisible(false), _receive_server_notices(false), _receive_wallops(false), _channelsLimit(10)
+: _isRegistered(false), _isOperator(false), _isAway(false), _invisible(false), _receive_server_notices(false), _receive_wallops(false), _channelsLimit(10)
 {}
 
 Client::~Client() {}
 
 // getters
+bool				Client::getAwayStatus() const { return this->_isAway; }
+std::string	const	&Client::getAwayMessage() const { return this->_awayMessage; }
 bool				Client::getRegistrationStatus() const { return this->_isRegistered; }
 std::string	const	&Client::getPassword() const { return this->_password; }
 std::string const	&Client::getNickname() const { return this->_nickname; }
@@ -66,6 +68,14 @@ void	Client::remove_channel(Channel *channel)
 			_channels.erase(it);
 			break;
 		}
+}
+
+void	Client::add_invite(const std::string& channel)
+{
+	for (std::vector<std::string>::iterator it = _channels_invited.begin(); it != _channels_invited.end(); it++)
+		if (*it == channel)
+			return;
+	_channels_invited.push_back(channel);
 }
 
 bool	Client::under_channels_limit() const
@@ -209,11 +219,11 @@ void	Client::command_handle(Message& mes, Server& serv)
 {
 	typedef		void (Server::*funptr)(Client&, Message&);
 	funptr		f[] = {&Server::commandPASS, &Server::commandNICK, NULL, NULL, NULL, &Server::commandJOIN, &Server::commandPART,
-						&Server::commandMODE, &Server::commandTOPIC, &Server::commandNAMES, &Server::commandLIST};
+						&Server::commandMODE, &Server::commandTOPIC, &Server::commandNAMES, &Server::commandLIST, &Server::commandINVITE};
 
 	int	i = check_command(mes);
 	//(serv.*f[i])(*this, mes);
-	if (i == 0 || i == 1 || (i >= 5 && i <= 10))
+	if (i == 0 || i == 1 || (i >= 5 && i <= 11))
 		(serv.*f[i])(*this, mes);
 }
 

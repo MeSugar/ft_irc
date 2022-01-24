@@ -10,6 +10,7 @@ void	Server::server_test_client()
 
 	test_client.setRegistrationStatus();
 	test_client.setNickname("test_client");
+	_connectedClients.push_back(&test_client);
 	test_client.client_test_loop(*this);
 }
 
@@ -765,4 +766,48 @@ void	Server::commandLIST(Client &client, Message &msg)
 		sendReply(generateNormalReply(_servername, RPL_LIST, name, ss.str(), topic));
 	}
 	sendReply(generateNormalReply(_servername, RPL_LISTEND));
+}
+
+void	Server::commandINVITE(Client &client, Message &msg)
+{
+	if ((!msg.prefix.empty() && !comparePrefixAndNick(msg.prefix, client)) || !client.getRegistrationStatus())
+		return;
+	if (msg.params.size() > 2)
+		return;
+	if (msg.params.size() < 2)
+	{	
+		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, "INVITE"));
+		return;
+	}
+	Client*	target;
+	if (!(target = findClient(msg.params[0], _connectedClients)))
+	{
+		sendReply(generateErrorReply(_servername, ERR_NOSUCHNICK, msg.params[0]));
+		return;
+	}
+	if (target == &client)
+		return;
+	Channel* channel = find_channel(msg.params[1]);
+	if (channel && !(channel->have_member(client)))
+	{
+		sendReply(generateErrorReply(_servername, ERR_NOTONCHANNEL, msg.params[1]));
+		return;
+	}
+	if (channel && channel->have_member(*target))
+	{
+		sendReply(generateErrorReply(_servername, ERR_USERONCHANNEL, msg.params[0], msg.params[1]));
+		return;
+	}
+	if (channel && channel->get_invite_status() && !(channel->have_operator(client)))
+	{
+		sendReply(generateErrorReply(_servername, ERR_CHANOPRIVSNEEDED, msg.params[1]));
+		return;
+	}
+	if (target->getAwayStatus())
+	{
+		sendReply(generateNormalReply(_servername, RPL_AWAY, msg.params[0], target->getAwayMessage()));
+		return;
+	}
+	target->add_invite(msg.params[1]);
+	sendReply(generateNormalReply(_servername, RPL_INVITING, msg.params[1], msg.params[0]));
 }
