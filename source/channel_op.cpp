@@ -811,3 +811,50 @@ void	Server::commandINVITE(Client &client, Message &msg)
 	target->add_invite(msg.params[1]);
 	sendReply(generateNormalReply(_servername, RPL_INVITING, msg.params[1], msg.params[0]));
 }
+
+void	Server::commandKICK(Client &client, Message &msg)
+{
+	if ((!msg.prefix.empty() && !comparePrefixAndNick(msg.prefix, client)) || !client.getRegistrationStatus())
+		return;
+	if (msg.params.size() > 3)
+		return;
+	if (msg.params.size() < 2)
+	{	
+		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, "KICK"));
+		return;
+	}
+	Channel* channel = find_channel(msg.params[0]);
+	if (!channel)
+	{
+		sendReply(generateErrorReply(_servername, ERR_NOSUCHCHANNEL, msg.params[0]));
+		return;
+	}
+	if (!(channel->have_operator(client)))
+	{
+		sendReply(generateErrorReply(_servername, ERR_CHANOPRIVSNEEDED, msg.params[0]));
+		return;
+	}
+	Client*	target;
+	if (!(target = findClient(msg.params[1], _connectedClients)))
+	{
+		sendReply(generateErrorReply(_servername, ERR_NOSUCHNICK, msg.params[1]));
+		return;
+	}
+	if (!(channel->have_member(msg.params[1])))
+	{
+		sendReply(generateErrorReply(_servername, ERR_USERNOTINCHANNEL, msg.params[1], msg.params[0]));
+		return;
+	}
+	if (target == &client)
+		return;
+	channel->remove_member(target);
+	target->remove_channel(channel);
+	std::string	tmp;
+	tmp = ':' + client.getNickname() + '!' + client.getUsername() + '@'
+		+ client.getHostname() + " KICK " + msg.params[0] + ' ' + msg.params[1] + " :";
+	if (msg.params.size() == 3)
+		tmp += msg.params[2];
+	else
+		tmp += client.getNickname();
+	channel->send_message(tmp);
+}
