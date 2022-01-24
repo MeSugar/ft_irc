@@ -81,6 +81,7 @@ class Server : public TemplateRun
 		void	user_mods_rpl(Client& client); //sends the list of user mods to the user
 		void	banlist_rpl(Channel* channel, Client& client); //sends the banlist to the user
 		void	all_names_rpl(Client& client); //sends all the visible channel and clients to user
+		void	all_list_rpl(Client& client); //sends all the visible channels and their topics to user
 		
 		// commands
 		void	commandHandler(Client &client, Message &msg);
@@ -94,4 +95,5 @@ class Server : public TemplateRun
 		void	commandMODE(Client &client, Message &msg);
 		void	commandTOPIC(Client &client, Message &msg);
 		void	commandNAMES(Client &client, Message &msg);
+		void	commandLIST(Client &client, Message &msg);
 };

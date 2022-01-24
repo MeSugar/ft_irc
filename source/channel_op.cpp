@@ -701,3 +701,68 @@ void	Server::commandNAMES(Client &client, Message &msg)
 	}
 	sendReply(generateNormalReply(_servername, RPL_ENDOFNAMES, channels.back()));
 }
+
+void	Server::all_list_rpl(Client& client)
+{
+	sendReply(generateNormalReply(_servername, RPL_LISTSTART));
+	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++)
+	{
+		std::string			name;
+		std::stringstream	ss;
+		std::string			topic;
+		if (!((*it)->have_member(client)) && (*it)->get_secret_status())
+			continue;
+		if (!((*it)->have_member(client)) && (*it)->get_private_status())
+			name = "Prv";
+		else
+		{	
+			name = (*it)->get_name();
+			topic = (*it)->get_topic();
+		}
+		ss << (*it)->size();
+		sendReply(generateNormalReply(_servername, RPL_LIST, name, ss.str(), topic));
+	}
+	sendReply(generateNormalReply(_servername, RPL_LISTEND));
+}
+
+void	Server::commandLIST(Client &client, Message &msg)
+{
+	if ((!msg.prefix.empty() && !comparePrefixAndNick(msg.prefix, client)) || !client.getRegistrationStatus())
+		return;
+	if (msg.params.size() > 2)
+		return;
+	if (msg.params.size() == 2 && msg.params[1] != _servername)
+	{	
+		sendReply(generateErrorReply(_servername, ERR_NOSUCHSERVER, msg.params[1]));
+		return;
+	}
+	if (msg.params.empty())
+	{	
+		all_list_rpl(client);
+		return;
+	}
+	std::vector<std::string>	channels;
+	divide_comma(channels, msg.params[0]);
+	Channel*	channel;
+	sendReply(generateNormalReply(_servername, RPL_LISTSTART));
+	for (std::vector<std::string>::iterator it = channels.begin(); it != channels.end(); it++)
+	{
+		std::string			name;
+		std::stringstream	ss;
+		std::string			topic;
+		if (!(channel = find_channel(*it)))
+			continue;
+		if (!(channel->have_member(client)) && channel->get_secret_status())
+			continue;
+		if (!(channel->have_member(client)) && channel->get_private_status())
+			name = "Prv";
+		else
+		{	
+			name = channel->get_name();
+			topic = channel->get_topic();
+		}
+		ss << channel->size();
+		sendReply(generateNormalReply(_servername, RPL_LIST, name, ss.str(), topic));
+	}
+	sendReply(generateNormalReply(_servername, RPL_LISTEND));
+}

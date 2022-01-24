@@ -209,11 +209,11 @@ void	Client::command_handle(Message& mes, Server& serv)
 {
 	typedef		void (Server::*funptr)(Client&, Message&);
 	funptr		f[] = {&Server::commandPASS, &Server::commandNICK, NULL, NULL, NULL, &Server::commandJOIN, &Server::commandPART,
-						&Server::commandMODE, &Server::commandTOPIC, &Server::commandNAMES};
+						&Server::commandMODE, &Server::commandTOPIC, &Server::commandNAMES, &Server::commandLIST};
 
 	int	i = check_command(mes);
 	//(serv.*f[i])(*this, mes);
-	if (i == 0 || i == 1 || (i >= 5 && i <= 9))
+	if (i == 0 || i == 1 || (i >= 5 && i <= 10))
 		(serv.*f[i])(*this, mes);
 }
 

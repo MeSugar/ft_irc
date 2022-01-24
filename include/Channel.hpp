@@ -49,6 +49,7 @@ class Channel
 		bool				empty() const;
 		bool				operators_empty() const;
 		std::string			list_all_members(const Client& client) const;
+		size_t				size() const;
 
 		void				send_message(const std::string& str);
 		

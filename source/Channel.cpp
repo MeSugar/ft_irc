@@ -156,6 +156,11 @@ std::string	Channel::list_all_members(const Client& client) const
 	return (res);
 }
 
+size_t	Channel::size() const
+{
+	return (_members.size());
+}
+
 void	Channel::add_member(Client* client)
 {
 	_members.push_back(client);
