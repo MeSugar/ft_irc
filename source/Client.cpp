@@ -1,7 +1,7 @@
 #include "../include/Client.hpp"
 
 Client::Client(int sockfd)
-: _clientFd(sockfd), _isRegistered(false), _isAway(false), _channelsLimit(10)
+: _clientFd(sockfd), _isRegistered(false), _isAway(false), _channelsLimit(10), _messageTimeout(2)
 {}
 
 Client::~Client() {}
@@ -14,7 +14,9 @@ std::string	const	&Client::getAwayMessage() const { return this->_awayMessage; }
 std::string	const	&Client::getPassword() const { return this->_password; }
 std::string const	&Client::getNickname() const { return this->_nickname; }
 std::string const	&Client::getUsername() const { return this->_username; }
-std::string	const	&Client::getHostname() const { return this->_hostname; } 
+std::string	const	&Client::getHostname() const { return this->_hostname; }
+time_t				Client::getLastMessageTime() const { return this->_lastMessageTime; }
+time_t				Client::getMessageTimeout() const { return this->_messageTimeout; }
 
 // setters
 void	Client::setClientFd(int fd) { this->_clientFd = fd; }
@@ -202,3 +204,7 @@ bool	Client::under_channels_limit() const
 		return (true);
 	return (false);
 }
+
+void	Client::setLastMessageTime(time_t time) { this->_lastMessageTime = time; }
+void	Client::setMessageTimeout(time_t time) { this->_messageTimeout = time; }
+		

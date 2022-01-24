@@ -34,6 +34,8 @@ class Client
 		std::vector<Channel *>		_channels;
 		unsigned const				_channelsLimit;
 		std::vector<std::string>	_channels_invited;
+		time_t						_lastMessageTime;
+		time_t						_messageTimeout;
 		
 		std::vector<std::string>	_nicknameHistory;
 
@@ -60,6 +62,8 @@ class Client
 		std::string const	&getNickname() const;
 		std::string const	&getUsername() const;
 		std::string const	&getHostname() const;
+		time_t				getLastMessageTime() const;
+		time_t				getMessageTimeout() const;
 
 		// setters
 		void	setClientFd(int fd);
@@ -71,6 +75,8 @@ class Client
 		void	setRegistrationStatus();
 		void	setOperatorStatus();
 		void	setAwayStatus(const std::string &msg = std::string());
+		void	setLastMessageTime(time_t time);
+		void	setMessageTimeout(time_t time);
 
 		void	add_channel(Channel* channel);
 		void	remove_channel(Channel *channel);

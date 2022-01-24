@@ -239,3 +239,20 @@ std::set<std::string> *Server::checkAndComposeRecipientsList(Client &client, std
 	}
 	return (new std::set<std::string>(recipients));
 }
+
+bool	Server::floodCheck(Client &client)
+{
+	time_t t = time(0);
+	if (t - client.getLastMessageTime() > client.getMessageTimeout())
+	{
+		client.setLastMessageTime(t);
+		client.setMessageTimeout(2);
+		return true;
+	}
+	client.setLastMessageTime(t);
+	client.setMessageTimeout(client.getMessageTimeout() * 2);
+	std::stringstream ss;
+	ss << client.getMessageTimeout();
+	this->sendReply(client, generateErrorReply(this->_servername, ERR_FLOOD, client.getNickname(), ss.str()));
+	return false;
+}
