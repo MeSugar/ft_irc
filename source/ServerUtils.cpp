@@ -23,12 +23,17 @@ void	Server::printLog(Message &msg) const
 	}
 }
 
-
 void	Server::sendMOTD(Client &client)
 {
+	if (this->_MOTD.empty())
+	{
+		this->sendReply(client, generateErrorReply(this->_servername, ERR_NOMOTD, client.getNickname()));
+		return ;
+	}
+	this->sendReply(client, generateNormalReply(this->_servername, RPL_MOTDSTART, client.getNickname(), this->_servername));
 	for (std::vector<std::string>::iterator it = this->_MOTD.begin(); it != this->_MOTD.end(); it++)
-		this->sendReply(client, *it);
-	this->sendReply(client, "\n");
+		this->sendReply(client, generateNormalReply(this->_servername, RPL_MOTD, client.getNickname(), *it));
+	this->sendReply(client, generateNormalReply(this->_servername, RPL_ENDOFMOTD, client.getNickname()));
 }
 
 void	Server::sendReply(Client &client, std::string const &reply) const
