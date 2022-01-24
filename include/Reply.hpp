@@ -49,6 +49,7 @@
 #define ERR_UMODEUNKNOWNFLAG	501
 #define ERR_USERSDONTMATCH		502
 #define	ERR_WRONGUSERNAME		503
+#define	ERR_FLOOD				504
 
 // Command responses
 #define RPL_NONE				300

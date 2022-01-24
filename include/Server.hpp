@@ -70,6 +70,7 @@ class Server
 		void		remove_channel(Channel *to_remove); //removes empty channel from the server
 		bool		check_channel_name(const std::string& str) const; //checks if the name is valid
 		void 		divide_comma(std::vector<std::string> &to, std::string str); //splits a given string with comma as a delimiter
+		bool		floodCheck(Client &client); // true - if(currentTime - lastMessageTime > timeout), else - false 
 	public:
 		Server(int port, std::string const &password);
 		~Server();

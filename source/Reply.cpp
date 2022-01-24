@@ -100,6 +100,8 @@ std::string generateErrorReply(std::string const &from, int const errorCode,
 			return (std::string(prefix + arg1 + " " + arg2 + " :Cant change mode for other users\n"));
 		case ERR_WRONGUSERNAME:
 			return (std::string(prefix + arg1 + " " + arg2 + " :Wrong user\n"));
+		case ERR_FLOOD:
+			return (std::string(prefix + " :You are sending too many messages. You will be able to send new message in " + arg1 + " sec\n"));
 		default:
 			return (std::string(prefix + arg1 + " " + arg2 + " :Something bad happend, but we really don't know\n"));
 	}

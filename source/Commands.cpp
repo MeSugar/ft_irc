@@ -2,11 +2,14 @@
 
 void	Server::commandHandler(Client &client, Message &msg)
 {
-	this->printLog(msg);
-	if (this->_commands.find(msg.command) != this->_commands.end())
-		this->commandProcessor(client, msg);
-	else
-		this->sendReply(client, generateErrorReply(this->_servername, ERR_UNKNOWNCOMMAND, client.getNickname(), msg.command));
+	if (this->floodCheck(client))
+	{
+		this->printLog(msg);
+		if (this->_commands.find(msg.command) != this->_commands.end())
+			this->commandProcessor(client, msg);
+		else
+			this->sendReply(client, generateErrorReply(this->_servername, ERR_UNKNOWNCOMMAND, client.getNickname(), msg.command));
+	}
 }
 
 void	Server::commandProcessor(Client &client, Message &msg)
