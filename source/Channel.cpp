@@ -179,12 +179,6 @@ void	Channel::remove_member(Client* client)
 	remove_speaker(client->getNickname());
 }
 
-void	Channel::send_message(int rpl, const std::string& arg1, const std::string& arg2, const std::string& arg3)
-{
-	for (std::vector<Client *>::iterator it = _members.begin(); it != _members.end(); it++)
-		_server->sendReply(generateNormalReply(_server->get_servername(), rpl, (*it)->getNickname(), arg1, arg2, arg3));
-}
-
 void	Channel::send_message(const std::string& to_send)
 {
 	for (std::vector<Client *>::iterator it = _members.begin(); it != _members.end(); it++)
