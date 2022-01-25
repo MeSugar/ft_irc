@@ -11,6 +11,9 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sstream>
+#include <poll.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
 
 #define MAX 80
 
@@ -19,7 +22,7 @@ class Socket {
         int         sockfd;
         int         connfd;
         int         port;
-        // char        buff[MAX];
+        // std::string msg;
 		std::string	pass;
         std::string host;
         struct addrinfo *res;

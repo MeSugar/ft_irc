@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cctype>
-#include "TemplateRun.hpp"
+#include <cstdlib>
 #include "Server.hpp"
 #include "Channel.hpp"
 
@@ -18,6 +18,7 @@ struct Message
 class Client
 {
 	private:
+		int							_clientFd;
 		bool						_isRegistered;
 		bool						_isOperator;
 		bool						_isAway;
@@ -36,6 +37,8 @@ class Client
 		bool						_receive_server_notices;
 		bool						_receive_wallops;
 		unsigned const				_channelsLimit;
+		time_t						_lastMessageTime;
+		time_t						_messageTimeout;
 		
 		std::vector<std::string>	_nicknameHistory;
 
@@ -50,11 +53,14 @@ class Client
 		int		check_command(const Message& mes);
 
 	public:
-		Client();
+		Client(int sockfd);
 		virtual ~Client();
 
 		// getters
+		int					getClientFd() const;
 		bool				getRegistrationStatus() const;
+		bool				getAwayStatus() const;
+		std::string	const	&getAwayMessage() const;
 		std::string	const	&getPassword() const;
 		std::string const	&getNickname() const;
 		std::string const	&getUsername() const;
@@ -63,17 +69,27 @@ class Client
 		const bool&			get_receive_notices() const;
 		const bool&			get_receive_wallops() const;
 		const bool&			get_operator_status() const;
-		bool				getAwayStatus() const;
-		std::string	const	&getAwayMessage() const;
 		std::string			get_full_name() const;
+		time_t				getLastMessageTime() const;
+		time_t				getMessageTimeout() const;
 
 		// setters
+		void	setClientFd(int fd);
 		void	setPassword(std::string const &pass);
 		void	setNickname(std::string const &nick);
+		void	setHostname(std::string const &hostname);
 		void	setUser(std::vector<std::string> &params);
 
 		void	setRegistrationStatus();
 		void	setOperatorStatus();
+		void	setAwayStatus(const std::string &msg = std::string());
+		void	setLastMessageTime(time_t time);
+		void	setMessageTimeout(time_t time);
+
+		void	remove_channel(Channel *channel);
+
+		bool	check_invitation(const std::string&	ch_name);
+		bool	under_channels_limit() const;
 
 		void	set_invisible(bool status);
 		void	set_receive_notices(bool status);
@@ -81,17 +97,13 @@ class Client
 		void	set_operator_status(bool status);
 
 		//TEST
-		void	client_test_loop(Server& serv);
+		// void	client_test_loop(Server& serv);
 
 		void	add_channel(Channel* channel);
-		void	remove_channel(Channel *channel);
 		void	add_invite(const std::string& channel);
 
-		bool	check_invitation(const std::string&	ch_name);
-		bool	under_channels_limit() const;
 		bool	check_names_visibility(const Client& client);
 		
 		// parser
 		Message	parse(const char* buf);
-		void	command_handle(Message& mes, Server& serv);
 };

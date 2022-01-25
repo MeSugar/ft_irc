@@ -35,7 +35,7 @@ int Socket::_socket() {
     err = this->sockfd;
     if (err == -1) {
         printf("socket creation failed...\n");
-        exit(0);
+        // exit(0);
         // error
     } else {
         printf("Socket successfully created..\n");
@@ -49,7 +49,7 @@ int Socket::_bind() {
     err = bind(this->sockfd, this->res->ai_addr, this->res->ai_addrlen);
     if (err != 0) {
         printf("socket bind failed...\n");
-        exit(0);
+        // exit(0);
         // error
     } else {
         printf("Socket successfully binded..\n");
@@ -63,7 +63,7 @@ int Socket::_connect() {
     err = connect(this->sockfd, this->res->ai_addr, this->res->ai_addrlen);
     if (err != 0) {
         printf("connection with the server failed...\n");
-        exit(0);
+        // exit(0);
         // error 
     } else {
         printf("connected to the server..\n");
@@ -77,11 +77,12 @@ int Socket::_linsten(int backlog) {
     err = listen(this->sockfd, backlog);
     if (err != 0) {
         printf("Listen failed...\n");
-        exit(0);
+        // exit(0);
         // error
     } else {
         printf("Server listening..\n");
     }
+    fcntl(this->sockfd, F_SETFL, O_NONBLOCK);
     return (0);
 }
 
@@ -97,12 +98,14 @@ int Socket::_accept() {
 
     err = this->connfd;
     if (err < 0) {
-        printf("server accept failed...\n");
-        exit(0);
+        // printf("server accept failed...\n");
+        // exit(0);
         // error
     } else {
         printf("server accept the client...\n");
     }
+    char	host[INET_ADDRSTRLEN];
+	inet_ntop(AF_INET, &(this->res->ai_addr), host, INET_ADDRSTRLEN);
     return (0);
 }
 

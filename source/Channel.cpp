@@ -182,7 +182,7 @@ void	Channel::remove_member(Client* client)
 void	Channel::send_message(const std::string& to_send)
 {
 	for (std::vector<Client *>::iterator it = _members.begin(); it != _members.end(); it++)
-		_server->sendReply(to_send);
+		_server->sendReply(*(*it), to_send);
 }
 
 void	Channel::add_operator(Client* client)
@@ -367,3 +367,8 @@ const std::vector<std::string>&	Channel::get_banlist() const
 {
 	return (_bans);
 }
+std::vector<Client *> &Channel::get_members()
+{ 
+	return (_members);
+}
+

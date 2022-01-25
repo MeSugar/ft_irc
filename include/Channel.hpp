@@ -89,5 +89,6 @@ class Channel
 		const bool&			get_moder_status() const;
 		const size_t&		get_user_limit() const;
 		const std::vector<std::string>&	get_banlist() const;
+		std::vector<Client *> &get_members();
 };
 
