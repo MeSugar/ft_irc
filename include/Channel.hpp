@@ -51,7 +51,8 @@ class Channel
 		std::string			list_all_members(const Client& client) const;
 		size_t				size() const;
 
-		void				send_message(const std::string& str);
+		void				send_message(int rpl, const std::string& arg1, const std::string& arg2, const std::string& arg3);
+		void				send_message(const std::string& to_send);
 		
 		void				add_member(Client* client);
 		void				remove_member(Client* client);

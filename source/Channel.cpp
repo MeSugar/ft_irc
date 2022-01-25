@@ -179,16 +179,22 @@ void	Channel::remove_member(Client* client)
 	remove_speaker(client->getNickname());
 }
 
-void	Channel::send_message(const std::string& str)
+void	Channel::send_message(int rpl, const std::string& arg1, const std::string& arg2, const std::string& arg3)
 {
 	for (std::vector<Client *>::iterator it = _members.begin(); it != _members.end(); it++)
-		_server->sendReply(str);
+		_server->sendReply(generateNormalReply(_server->get_servername(), rpl, (*it)->getNickname(), arg1, arg2, arg3));
+}
+
+void	Channel::send_message(const std::string& to_send)
+{
+	for (std::vector<Client *>::iterator it = _members.begin(); it != _members.end(); it++)
+		_server->sendReply(to_send);
 }
 
 void	Channel::add_operator(Client* client)
 {
 	_channelOperators.push_back(client);
-	send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, "+o", client->getNickname()));
+	send_message(RPL_CHANNELMODEIS, _name, "+o", client->getNickname());
 }
 
 void	Channel::add_operator(const std::string& nickname)
@@ -207,7 +213,7 @@ void	Channel::remove_operator(Client* client)
 		if (*it == client)
 		{	
 			_channelOperators.erase(it);
-			send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, "-o", client->getNickname()));
+			send_message(RPL_CHANNELMODEIS, _name, "-o", client->getNickname());
 			break;
 		}
 }
@@ -218,7 +224,7 @@ void	Channel::remove_operator(const std::string& nickname)
 		if ((*it)->getNickname() == nickname)
 		{	
 			_channelOperators.erase(it);
-			send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, "-o", nickname));
+			send_message(RPL_CHANNELMODEIS, _name, "-o", nickname);
 			break;
 		}
 }
@@ -231,7 +237,7 @@ void	Channel::make_any_operator()
 void	Channel::add_speaker(const std::string& nickname)
 {
 	_speakers.push_back(nickname);
-	send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, "+v", nickname));
+	send_message(RPL_CHANNELMODEIS, _name, "+v", nickname);
 }
 
 void	Channel::remove_speaker(const std::string& nickname)
@@ -240,7 +246,7 @@ void	Channel::remove_speaker(const std::string& nickname)
 		if (*it == nickname)
 		{	
 			_speakers.erase(it);
-			send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, "-v", nickname));
+			send_message(RPL_CHANNELMODEIS, _name, "-v", nickname);
 			break;
 		}
 }
@@ -248,7 +254,7 @@ void	Channel::remove_speaker(const std::string& nickname)
 void	Channel::add_banmask(const std::string& ban)
 {
 	_bans.push_back(ban);
-	send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, "+b", ban));
+	send_message(RPL_CHANNELMODEIS, _name, "+b", ban);
 }
 
 void	Channel::remove_banmask(const std::string& ban)
@@ -259,13 +265,13 @@ void	Channel::remove_banmask(const std::string& ban)
 			_bans.erase(it);
 			break;
 		}
-	send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, "-b", ban));
+	send_message(RPL_CHANNELMODEIS, _name, "-b", ban);
 }
 
 void	Channel::remove_key()
 {
 	_key.clear();
-	send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, "-k", std::string()));
+	send_message(RPL_CHANNELMODEIS, _name, "-k", std::string());
 }
 
 //setters
@@ -277,7 +283,7 @@ void	Channel::set_invite_status(bool status)
 		mode = "+i";
 	else
 		mode = "-i";
-	send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, mode, std::string()));
+	send_message(RPL_CHANNELMODEIS, _name, mode, std::string());
 }
 
 void	Channel::set_private_status(bool status)
@@ -288,7 +294,7 @@ void	Channel::set_private_status(bool status)
 		mode = "+p";
 	else
 		mode = "-p";
-	send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, mode, std::string()));
+	send_message(RPL_CHANNELMODEIS, _name, mode, std::string());
 }
 
 void	Channel::set_secret_status(bool status)
@@ -299,7 +305,7 @@ void	Channel::set_secret_status(bool status)
 		mode = "+s";
 	else
 		mode = "-s";
-	send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, mode, std::string()));
+	send_message(RPL_CHANNELMODEIS, _name, mode, std::string());
 }
 
 void	Channel::set_topic_status(bool status)
@@ -310,7 +316,7 @@ void	Channel::set_topic_status(bool status)
 		mode = "+t";
 	else
 		mode = "-t";
-	send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, mode, std::string()));
+	send_message(RPL_CHANNELMODEIS, _name, mode, std::string());
 }
 
 void	Channel::set_outside_status(bool status)
@@ -321,7 +327,7 @@ void	Channel::set_outside_status(bool status)
 		mode = "+n";
 	else
 		mode = "-n";
-	send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, mode, std::string()));
+	send_message(RPL_CHANNELMODEIS, _name, mode, std::string());
 }
 
 void	Channel::set_moder_status(bool status)
@@ -332,7 +338,7 @@ void	Channel::set_moder_status(bool status)
 		mode = "+m";
 	else
 		mode = "-m";
-	send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, mode, std::string()));
+	send_message(RPL_CHANNELMODEIS, _name, mode, std::string());
 }
 
 void	Channel::set_user_limit(std::string n, char sign)
@@ -340,25 +346,25 @@ void	Channel::set_user_limit(std::string n, char sign)
 	if (sign == '+')
 	{	
 		_user_limit = atoi(n.c_str());
-		send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, "+l", n));
+		send_message(RPL_CHANNELMODEIS, _name, "+l", n);
 	}
 	else
 	{	
 		_user_limit = MAX_MEMBERS;
-		send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, "-l", std::string()));
+		send_message(RPL_CHANNELMODEIS, _name, "-l", std::string());
 	}
 }
 
 void	Channel::set_key(const std::string& key)
 {
 	_key = key;
-	send_message(generateNormalReply(_server->get_servername(), RPL_CHANNELMODEIS, _name, "+k", key));
+	send_message(RPL_CHANNELMODEIS, _name, "+k", key);
 }
 
 void	Channel::set_topic(const std::string& topic)
 {
 	_topic = topic;
-	send_message(generateNormalReply(_server->get_servername(), RPL_TOPIC, _name, _topic));
+	send_message(RPL_TOPIC, _name, _topic, std::string());
 }
 
 //getters
