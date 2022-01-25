@@ -19,6 +19,14 @@ const bool&			Client::get_receive_notices() const { return (_receive_server_noti
 const bool&			Client::get_receive_wallops() const { return (_receive_wallops); }
 const bool&			Client::get_operator_status() const { return (_isOperator); }
 
+std::string	Client::get_full_name() const
+{
+	std::string	tmp;
+	
+	tmp = ':' + _nickname + '!' + _username + '@' + _hostname;
+	return (tmp);
+}
+
 // setters
 void    Client::setPassword(std::string const &pass) { this->_password = pass; }
 

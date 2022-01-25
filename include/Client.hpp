@@ -65,6 +65,7 @@ class Client
 		const bool&			get_operator_status() const;
 		bool				getAwayStatus() const;
 		std::string	const	&getAwayMessage() const;
+		std::string			get_full_name() const;
 
 		// setters
 		void	setPassword(std::string const &pass);

@@ -87,7 +87,7 @@ void Server::commandJOIN(Client& client, Message& msg)
 		return ;
 	if (msg.params.empty())
 	{	
-		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, client.getNickname(), "JOIN"));
+		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, client.getNickname(), msg.command));
 		return ;
 	}
 	std::vector<std::string>	channels;
@@ -145,8 +145,7 @@ void Server::commandJOIN(Client& client, Message& msg)
 			channel = add_channel(*it, client);
 		}
 		std::string	tmp;
-		tmp = ':' + client.getNickname() + '!' + client.getUsername() + '@'
-			+ client.getHostname() + " JOIN :" + *it + "\r\n";
+		tmp = client.get_full_name() + " JOIN :" + *it + "\r\n";
 		channel->send_message(tmp);
 		Message  mes;
 		mes.params.push_back(*it);
@@ -166,7 +165,7 @@ void	Server::commandPART(Client &client, Message &msg)
 		return ;
 	if (msg.params.empty())
 	{	
-		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, client.getNickname(), "PART"));
+		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, client.getNickname(), msg.command));
 		return ;
 	}
 	std::vector<std::string>	channels;
@@ -182,8 +181,7 @@ void	Server::commandPART(Client &client, Message &msg)
 				continue;
 			}
 			std::string	tmp;
-			tmp = ':' + client.getNickname() + '!' + client.getUsername() + '@'
-			+ client.getHostname() + " PART :" + *it + "\r\n";
+			tmp = client.get_full_name() + " PART :" + *it + "\r\n";
 			channel->send_message(tmp);
 			channel->remove_member(&client);
 			client.remove_channel(channel);
@@ -266,7 +264,7 @@ bool	Server::check_channel_modes(const std::string& str, const Message& msg, Cli
 	}
 	if (msg.params.size() < static_cast<size_t>(2 + 3 - param_modes))
 	{	
-		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, client.getNickname(), "MODE"));
+		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, client.getNickname(), msg.command));
 		return (false);
 	}
 	if (msg.params.size() > static_cast<size_t>(2 + 3 - param_modes))
@@ -309,18 +307,20 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 			else if (channel->have_member(param) && channel->have_operator(param))
 				return;
 			else
+			{	
 				sendReply(generateErrorReply(_servername, ERR_NOSUCHNICK, client.getNickname(), param));
+				return;
+			}
 		}
 		else if (sign == '-')
 		{
 			if (channel->have_operator(param))
-			{	
 				channel->remove_operator(param);
-				if (channel->operators_empty())
-					channel->make_any_operator();
-			}
 			else
+			{	
 				sendReply(generateErrorReply(_servername, ERR_NOSUCHNICK, client.getNickname(), param));
+				return;
+			}
 		}
 	}
 	else if (mode == 'p')
@@ -396,7 +396,10 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 	else if (mode == 'v')
 	{
 		if (!(channel->have_member(param)))
+		{
 			sendReply(generateErrorReply(_servername, ERR_NOSUCHNICK, client.getNickname(), param));
+			return;
+		}
 		else if (sign == '+' && !(channel->have_speaker(param)) && !(channel->have_operator(param)))
 			channel->add_speaker(param);
 		else if (sign == '-' && channel->have_speaker(param))
@@ -405,12 +408,24 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 	else if (mode == 'k')
 	{
 		if (sign == '+' && channel->have_key())
+		{	
 			sendReply(generateErrorReply(_servername, ERR_KEYSET, client.getNickname(), param));
+			return;
+		}
 		else if (sign == '+')
 			channel->set_key(param);
 		else if (sign == '-' && channel->have_key())
 			channel->remove_key();
 	}
+	std::string tmp;
+	tmp = client.get_full_name() + " MODE " + channel->get_name() + ' '
+			+ sign + mode;
+	if (!(param.empty()))
+		tmp += " :";
+	tmp += param + "\r\n";
+	channel->send_message(tmp);
+	if (channel->operators_empty())
+		channel->make_any_operator();
 }
 
 void	Server::channel_mods_rpl(Channel* channel, Client& client)
@@ -491,20 +506,16 @@ void	Server::channel_mode(Client &client, Message &msg)
 	if (!check_channel_modes(mod, msg, client))
 		return;
 	size_t	param = 2;
-	size_t	max_param = 1;
-	for (size_t i = 1; i < mod.size(); i++)
-		if (mod[i] == 'o' || mod[i] == 'b' || (mod[i] == 'l' && mod[0] == '+') || mod[i] == 'v'
-			|| (mod[i] == 'k' && mod[0] == '+'))
-			max_param++;
 	for (size_t i = 1; i < mod.size(); i++)
 	{
-		if (max_param < param)
-			handle_channel_mode(mod[0], mod[i], channel, std::string(), client);
-		else
-			handle_channel_mode(mod[0], mod[i], channel, msg.params[param], client);
 		if (mod[i] == 'o' || mod[i] == 'b' || (mod[i] == 'l' && mod[0] == '+') || mod[i] == 'v'
 			|| (mod[i] == 'k' && mod[0] == '+'))
+		{	
+			handle_channel_mode(mod[0], mod[i], channel, msg.params[param], client);
 			param++;
+		}
+		else
+			handle_channel_mode(mod[0], mod[i], channel, std::string(), client);
 	}
 }
 
@@ -556,6 +567,10 @@ void	Server::handle_user_mode(char sign, char mode, Client& client)
 	else if (mode == 'o')
 		if (sign == '-' && client.get_operator_status())
 			client.set_operator_status(false);
+	std::string tmp;
+	tmp = client.get_full_name() + " MODE " + client.getNickname() + " :"
+			+ sign + mode + "\r\n";
+	sendReply(tmp);
 }
 
 void	Server::user_mods_rpl(Client& client)
@@ -578,7 +593,7 @@ void	Server::user_mods_rpl(Client& client)
 
 void	Server::user_mode(Client &client, Message &msg)
 {
-	if (!findClient(msg.params[0], _clients))
+	if (!findClient(msg.params[0], _connectedClients))
 	{
 		sendReply(generateErrorReply(_servername, ERR_NOSUCHNICK, client.getNickname(), msg.params[0]));
 		return;
@@ -608,7 +623,7 @@ void	Server::commandMODE(Client &client, Message &msg)
 		return;
 	if (msg.params.empty())
 	{	
-		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, client.getNickname(), "MODE"));
+		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, client.getNickname(), msg.command));
 		return;
 	}
 	if (msg.params[0].empty())
@@ -628,7 +643,7 @@ void	Server::commandTOPIC(Client &client, Message &msg)
 		return;
 	if (msg.params.empty() || msg.params[0].empty())
 	{	
-		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, client.getNickname(), "MODE"));
+		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, client.getNickname(), msg.command));
 		return;
 	}
 	if (msg.params.size() > 2)
@@ -651,7 +666,13 @@ void	Server::commandTOPIC(Client &client, Message &msg)
 		if (channel->get_topic_status() && !(channel->have_operator(client)))
 			sendReply(generateErrorReply(_servername, ERR_CHANOPRIVSNEEDED, client.getNickname(), msg.params[0]));
 		else
+		{	
 			channel->set_topic(msg.params[1]);
+			std::string tmp;
+			tmp = client.get_full_name() + " TOPIC " + msg.params[0] + " :"
+					+ msg.params[1] + "\r\n";
+			channel->send_message(tmp);
+		}
 	}
 }
 
@@ -780,7 +801,7 @@ void	Server::commandINVITE(Client &client, Message &msg)
 		return;
 	if (msg.params.size() < 2)
 	{	
-		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, client.getNickname(), "INVITE"));
+		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, client.getNickname(), msg.command));
 		return;
 	}
 	Client*	target;
@@ -814,6 +835,10 @@ void	Server::commandINVITE(Client &client, Message &msg)
 	}
 	target->add_invite(msg.params[1]);
 	sendReply(generateNormalReply(_servername, RPL_INVITING, client.getNickname(), msg.params[1], msg.params[0]));
+	std::string tmp;
+	tmp = client.get_full_name() + " INVITE " + msg.params[0] + ' '
+			+ msg.params[1] + "\r\n";
+	sendReply(tmp); //to target
 }
 
 void	Server::commandKICK(Client &client, Message &msg)
@@ -824,7 +849,7 @@ void	Server::commandKICK(Client &client, Message &msg)
 		return;
 	if (msg.params.size() < 2)
 	{	
-		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, client.getNickname(), "KICK"));
+		sendReply(generateErrorReply(_servername, ERR_NEEDMOREPARAMS, client.getNickname(), msg.command));
 		return;
 	}
 	Channel* channel = find_channel(msg.params[0]);
@@ -854,8 +879,7 @@ void	Server::commandKICK(Client &client, Message &msg)
 	channel->remove_member(target);
 	target->remove_channel(channel);
 	std::string	tmp;
-	tmp = ':' + client.getNickname() + '!' + client.getUsername() + '@'
-		+ client.getHostname() + " KICK " + msg.params[0] + ' ' + msg.params[1] + " :";
+	tmp = client.get_full_name() + " KICK " + msg.params[0] + ' ' + msg.params[1] + " :";
 	if (msg.params.size() == 3)
 		tmp += msg.params[2];
 	else
