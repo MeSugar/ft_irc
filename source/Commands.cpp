@@ -472,8 +472,6 @@ void	Server::commandKICK(Client &client, Message &msg)
 	}
 	if (target == &client)
 		return;
-	channel->remove_member(target);
-	target->remove_channel(channel);
 	std::string	tmp;
 	tmp = client.get_full_name() + " KICK " + msg.params[0] + ' ' + msg.params[1] + " :";
 	if (msg.params.size() == 3)
@@ -482,4 +480,6 @@ void	Server::commandKICK(Client &client, Message &msg)
 		tmp += client.getNickname();
 	tmp += "\r\n";
 	channel->send_message(tmp);
+	channel->remove_member(target);
+	target->remove_channel(channel);
 }

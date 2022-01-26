@@ -760,9 +760,11 @@ void	Server::all_names_rpl(Client &client)
 		if (!((*it)->getRegistrationStatus()) || (*it)->get_invisible())
 			continue;
 		if ((*it)->check_names_visibility(client))
+		{
 			tmp += (*it)->getNickname();
-		if ((it + 1) != _connectedClients.end())
-			tmp += ' ';
+			if ((it + 1) != _connectedClients.end())
+				tmp += ' ';
+		}
 	}
 	if (!(tmp.empty()))
 			sendReply(client, generateNormalReply(_servername, RPL_NAMREPLY, client.getNickname(), "*", tmp));
