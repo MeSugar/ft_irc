@@ -104,17 +104,24 @@ void	Server::commandPRIVMSG(Client &client, Message &msg)
 			this->sendReply(client, generateErrorReply(this->_servername, ERR_NOTEXTTOSEND, client.getNickname(), msg.command));
 		else
 		{
-			std::set<std::string> *recipients = this->checkAndComposeRecipientsList(client, msg, msg.params);
+			std::map<std::string, std::string> channel_members;
+			std::set<std::string> *recipients = this->checkAndComposeRecipientsList(client, msg, msg.params, &channel_members);
 			if (recipients != NULL && !recipients->empty())
 			{
 				for (std::set<std::string>::iterator it = recipients->begin(); it != recipients->end(); it++)
 				{
-					Client &cl = *this->findClient((*it), this->_clients);
+					Client &cl = *this->findClient((*it), this->_connectedClients);
 					if (cl.getAwayStatus() && msg.command != "NOTICE")
 						sendReply(client, generateNormalReply(this->_servername, RPL_AWAY, client.getNickname(), msg.command, cl.getNickname(), cl.getAwayMessage()));
-					else
-						sendReply(cl, ":" + cl.getNickname() + "!" + cl.getUsername() + "@" + cl.getHostname()
-						+ " " + msg.command + " " + client.getNickname() + " " + ":" + msg.params[1] + "\n");
+					else if (client.getNickname() != cl.getNickname())
+					{
+						if (channel_members.find(cl.getNickname()) != channel_members.end())
+							sendReply(cl, ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname()
+							+ " " + msg.command + " " + channel_members.find(cl.getNickname())->second + " " + ":" + msg.params[1] + "\n");
+						else
+							sendReply(cl, ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname()
+							+ " " + msg.command + " " + client.getNickname() + " " + ":" + msg.params[1] + "\n");
+					}
 				}
 				delete recipients;
 			}

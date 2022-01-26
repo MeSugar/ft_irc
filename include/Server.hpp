@@ -59,7 +59,9 @@ class Server
 		bool	validateMask(Client &client, const std::string &mask, Message &msg); // checks whether the mask have at least one '.'  in it and no wildcards following the last '.'
 		bool	checkUserHostnameByMask(Client const &client, const std::string &mask); // checks whether hostname matches the mask 
 		bool	containsText(std::vector<std::string> &params); //checks whether params contain text to be sent
-		std::set<std::string>	*checkAndComposeRecipientsList(Client &client, Message &msg, std::vector<std::string> &params);
+		std::set<std::string>	*checkAndComposeRecipientsList(Client &client, Message &msg,
+																std::vector<std::string> &params, 
+																std::map<std::string, std::string> *channel_members);
 		//checks whether list contains existing channel-, server-, host user names and composes a list of user nicknames to whom a message should be sent
 
 		bool		addRecipientToList(std::set<std::string> &recipients, Client &from, Client *to, Message &msg); //tries to add the client to the list if it's not already present

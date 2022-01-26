@@ -184,7 +184,9 @@ bool	Server::addRecipientToList(std::set<std::string> &recipients, Client &from,
 	return true;
 }
 
-std::set<std::string> *Server::checkAndComposeRecipientsList(Client &client, Message &msg, std::vector<std::string> &params)
+std::set<std::string> *Server::checkAndComposeRecipientsList(Client &client, Message &msg,
+																std::vector<std::string> &params, 
+																std::map<std::string, std::string> *channel_members)
 {
 	std::vector<std::string> list;
 	std::set<std::string> recipients;
@@ -203,8 +205,11 @@ std::set<std::string> *Server::checkAndComposeRecipientsList(Client &client, Mes
 						return NULL;
 				}
 				for (std::vector<Client *>::iterator ite = ch->get_members().begin(); ite != ch->get_members().end(); ite++)
+				{
 					if (!this->addRecipientToList(recipients, client, *ite, msg))
 						return NULL;
+					channel_members->insert(std::pair<std::string, std::string>((*ite)->getNickname(), ch->get_name()));
+				}
 			}
 			else
 			{
@@ -220,6 +225,7 @@ std::set<std::string> *Server::checkAndComposeRecipientsList(Client &client, Mes
 							if (!this->addRecipientToList(recipients, client, *iter, msg))
 								return NULL;
 							recipientsAdded++;
+							channel_members->insert(std::pair<std::string, std::string>((*iter)->getNickname(), (*it)));
 						}
 					}
 				}
