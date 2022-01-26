@@ -2,14 +2,11 @@
 
 void	Server::commandHandler(Client &client, Message &msg)
 {
-	if (this->floodCheck(client))
-	{
 		this->printLog(msg);
 		if (this->_commands.find(msg.command) != this->_commands.end())
 			this->commandProcessor(client, msg);
 		else
 			this->sendReply(client, generateErrorReply(this->_servername, ERR_UNKNOWNCOMMAND, client.getNickname(), msg.command));
-	}
 }
 
 void	Server::commandProcessor(Client &client, Message &msg)
@@ -18,6 +15,8 @@ void	Server::commandProcessor(Client &client, Message &msg)
 		this->sendReply(client, generateErrorReply(this->_servername, ERR_NOTREGISTERED, client.getNickname(), msg.command));
 	else
 	{
+		if (client.getRegistrationStatus() && !this->floodCheck(client))
+			return ;
 		CommandsMap::iterator it = this->_commands.find(msg.command);
 		(this->*it->second)(client, msg);
 	}

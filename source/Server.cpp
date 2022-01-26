@@ -75,7 +75,8 @@ int Server::_recv(int sockfd) {
 
 int Server::chat(Client &client)
 {
-	Message msg; 
+	Message msg;
+	std::cout << this->_message << std::endl;
 	if (this->_recv(client.getClientFd()) == 0)
 	{
 		msg = client.parse(this->_message.c_str());
