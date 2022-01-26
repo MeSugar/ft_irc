@@ -254,7 +254,8 @@ bool	Server::floodCheck(Client &client)
 		return true;
 	}
 	client.setLastMessageTime(t);
-	client.setMessageTimeout(client.getMessageTimeout() * 2);
+	if (client.getMessageTimeout() < (2 << 6))
+		client.setMessageTimeout(client.getMessageTimeout() * 2);
 	std::stringstream ss;
 	ss << client.getMessageTimeout();
 	this->sendReply(client, generateErrorReply(this->_servername, ERR_FLOOD, client.getNickname(), ss.str()));
