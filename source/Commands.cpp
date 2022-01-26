@@ -332,7 +332,7 @@ void	Server::commandNAMES(Client &client, Message &msg)
 		return;
 	if (msg.params.size() > 1)
 		return;
-	if (msg.params.empty())
+	if (msg.params.empty() || msg.params[0].empty())
 	{	
 		all_names_rpl(client);
 		return;
