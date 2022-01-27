@@ -230,7 +230,7 @@ void	Server::commandPART(Client &client, Message &msg)
 {
 	if ((!msg.prefix.empty() && !comparePrefixAndNick(msg.prefix, client)) || !client.getRegistrationStatus())
 		return ;
-	if (msg.params.size() > 1)
+	if (msg.params.size() > 2)
 		return ;
 	if (msg.params.empty())
 	{	
@@ -250,7 +250,10 @@ void	Server::commandPART(Client &client, Message &msg)
 				continue;
 			}
 			std::string	tmp;
-			tmp = client.get_full_name() + " PART :" + *it + "\r\n";
+			tmp = client.get_full_name() + " PART " + *it;
+			if (msg.params.size() == 2)
+				tmp += " :" + msg.params[1];
+			tmp += "\r\n";
 			channel->send_message(tmp);
 			channel->remove_member(&client);
 			client.remove_channel(channel);
