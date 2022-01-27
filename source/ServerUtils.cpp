@@ -467,6 +467,8 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 		}
 		else if (sign == '-' && channel->get_private_status())
 			channel->set_private_status(false);
+		else
+			return;
 	}
 	else if (mode == 's')
 	{
@@ -478,6 +480,8 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 		}
 		else if (sign == '-' && channel->get_secret_status())
 			channel->set_secret_status(false);
+		else
+			return;
 	}
 	else if (mode == 'i')
 	{
@@ -485,6 +489,8 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 			channel->set_invite_status(true);
 		else if (sign == '-' && channel->get_invite_status())
 			channel->set_invite_status(false);
+		else
+			return;
 	}
 	else if (mode == 't')
 	{
@@ -492,6 +498,8 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 			channel->set_topic_status(true);
 		else if (sign == '-' && channel->get_topic_status())
 			channel->set_topic_status(false);
+		else
+			return;
 	}
 	else if (mode == 'n')
 	{
@@ -499,6 +507,8 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 			channel->set_outside_status(true);
 		else if (sign == '-' && channel->get_outside_status())
 			channel->set_outside_status(false);
+		else
+			return;
 	}
 	else if (mode == 'm')
 	{
@@ -506,6 +516,8 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 			channel->set_moder_status(true);
 		else if (sign == '-' && channel->get_moder_status())
 			channel->set_moder_status(false);
+		else
+			return;
 	}
 	else if (mode == 'm')
 	{
@@ -513,12 +525,16 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 			channel->set_moder_status(true);
 		else if (sign == '-' && channel->get_moder_status())
 			channel->set_moder_status(false);
+		else
+			return;
 	}
 	else if (mode == 'l')
 	{	
 		if ((sign == '-' && channel->get_user_limit() != MAX_MEMBERS)
 			|| (sign == '+' && channel->get_user_limit() != static_cast<size_t>(atoi(param.c_str()))))
 			channel->set_user_limit(param, sign);
+		else
+			return;
 	}
 	else if (mode == 'b')
 	{
@@ -526,6 +542,8 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 			channel->add_banmask(param);
 		else if (sign == '-' && channel->have_banmask(param))
 			channel->remove_banmask(param);
+		else
+			return;
 	}
 	else if (mode == 'v')
 	{
@@ -538,6 +556,8 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 			channel->add_speaker(param);
 		else if (sign == '-' && channel->have_speaker(param))
 			channel->remove_speaker(param);
+		else
+			return;
 	}
 	else if (mode == 'k')
 	{
@@ -550,6 +570,8 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 			channel->set_key(param);
 		else if (sign == '-' && channel->have_key())
 			channel->remove_key();
+		else
+			return;
 	}
 	std::string tmp;
 	tmp = client.get_full_name() + " MODE " + channel->get_name() + ' '
