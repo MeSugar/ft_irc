@@ -171,7 +171,7 @@ std::string generateNormalReply(std::string const &from, int const replyCode,
 		case RPL_ENDOFWHO:
 			return (std::string(prefix + arg1 + " :End of /WHO list\n"));
 		case RPL_NAMREPLY:
-		 	return (std::string(prefix + arg1 + " :" + arg2 + "\n"));
+		 	return (std::string(prefix + "= " + arg1 + " :" + arg2 + "\n"));
 		case RPL_ENDOFNAMES:
 			return (std::string(prefix + arg1 + " :End of /NAMES list\n"));
 		case RPL_LINKS:
