@@ -626,14 +626,14 @@ void	Server::channel_mode(Client &client, Message &msg)
 		channel_mods_rpl(channel, client);
 		return;
 	}
-	if (!channel->have_operator(client))
-	{
-		sendReply(client, generateErrorReply(_servername, ERR_CHANOPRIVSNEEDED, client.getNickname(), msg.params[0]));
-		return;
-	}
 	if (msg.params.size() == 2 && (msg.params[1] == "+b" || msg.params[1] == "-b" || msg.params[1] == "b"))
 	{
 		banlist_rpl(channel, client);
+		return;
+	}
+	if (!channel->have_operator(client))
+	{
+		sendReply(client, generateErrorReply(_servername, ERR_CHANOPRIVSNEEDED, client.getNickname(), msg.params[0]));
 		return;
 	}
 	std::string	mod = msg.params[1];
