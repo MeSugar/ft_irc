@@ -20,7 +20,7 @@ Server::Server(int port, std::string const &password)
 	this->_commands.insert(std::make_pair("NICK", &Server::commandNICK));
 	this->_commands.insert(std::make_pair("USER", &Server::commandUSER));
 	this->_commands.insert(std::make_pair("OPER", &Server::commandOPER));
-	// this->_commands.insert(std::make_pair("QUIT", &Server::commandQUIT));
+	this->_commands.insert(std::make_pair("QUIT", &Server::commandQUIT));
 	this->_commands.insert(std::make_pair("JOIN", &Server::commandJOIN));
 	this->_commands.insert(std::make_pair("PART", &Server::commandPART));
 	this->_commands.insert(std::make_pair("MODE", &Server::commandMODE));
@@ -145,10 +145,10 @@ int Server::loop() {
 	while (work) {
 		this->s->_accept();
 		this->_creatpoll(this->s->getConnfd());
-		std::cout << "Vector userfds: \n";
-		for (std::vector<struct pollfd>::iterator it = this->_userfds.begin(); it != this->_userfds.end(); it++) {
-			std::cout << "\tfd: " << (*it).fd << "\tevent: " << (*it).events << std::endl;
-		}
+		// std::cout << "Vector userfds: \n";
+		// for (std::vector<struct pollfd>::iterator it = this->_userfds.begin(); it != this->_userfds.end(); it++) {
+		// 	// std::cout << "\tfd: " << (*it).fd << "\tevent: " << (*it).events << std::endl;
+		// }
 		// this->_clients.push_back(new Client());
 		int ret = poll(this->_userfds.data(), this->_userfds.size(), timeout);
 		if (ret == 0)

@@ -150,7 +150,6 @@ void	Server::commandAWAY(Client &client, Message &msg)
 
 void	Server::commandQUIT(Client &client, Message &msg) {
 	(void)msg;
-	this->_deletepoll(client.getClientFd());
 
 	std::vector<Channel *> channels = client.getChannel();
 	for (size_t i = 0; i < channels.size(); i++) {
@@ -161,6 +160,7 @@ void	Server::commandQUIT(Client &client, Message &msg) {
 		else if (c->operators_empty())
 			c->make_any_operator();
 	}
+	this->_deletepoll(client.getClientFd());
 }
 
 void Server::commandJOIN(Client& client, Message& msg)
