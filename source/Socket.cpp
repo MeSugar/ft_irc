@@ -45,7 +45,9 @@ int Socket::_socket() {
 
 int Socket::_bind() {
     int err;
+    int trueFlag = 1;
 
+    setsockopt(this->sockfd, SOL_SOCKET, SO_REUSEADDR, &trueFlag, sizeof(int));
     err = bind(this->sockfd, this->res->ai_addr, this->res->ai_addrlen);
     if (err != 0) {
         printf("socket bind failed...\n");

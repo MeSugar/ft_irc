@@ -4,7 +4,9 @@ Client::Client(int sockfd)
 : _clientFd(sockfd), _isRegistered(false), _isAway(false), _channelsLimit(10), _messageTimeout(2)
 {}
 
-Client::~Client() {}
+Client::~Client() {
+	close(this->_clientFd);
+}
 
 // getters
 int					Client::getClientFd() const { return this->_clientFd; }
@@ -207,4 +209,6 @@ bool	Client::under_channels_limit() const
 
 void	Client::setLastMessageTime(time_t time) { this->_lastMessageTime = time; }
 void	Client::setMessageTimeout(time_t time) { this->_messageTimeout = time; }
+
+std::vector<Channel *> Client::getChannel() { return this->_channels; }
 		

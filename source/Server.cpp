@@ -1,5 +1,13 @@
 #include "../include/Server.hpp"
 
+bool	work = true;
+
+void	sigHandler(int signum)
+{
+	(void)signum;
+	work = false;
+}
+
 Server::Server(int port, std::string const &password)
 {
 	this->_port = port;
@@ -34,6 +42,37 @@ Server::Server(int port, std::string const &password)
 
 Server::~Server() {}
 
+Client &Server::_findclient(int sockfd) {
+	for (size_t i = 0; i < this->_clients.size(); i++) {
+		if (this->_clients[i]->getClientFd() == sockfd)
+			return *this->_clients[i];
+	}
+	return *this->_clients[0];
+}
+
+void Server::_deletepoll(int sockfd) {
+	for (size_t i = 0; i < this->_userfds.size(); i++) {
+		if (this->_userfds[i].fd == sockfd) {
+			this->_userfds.erase(this->_userfds.begin() + i);
+			break;
+		}
+	}
+	for (size_t i = 0; i < this->_clients.size(); i++) {
+		if (this->_clients[i]->getClientFd() == sockfd) {
+			delete this->_clients[i];
+			this->_clients.erase(this->_clients.begin() + i);
+			break;
+		}
+	}
+	for (size_t i = 0; i < this->_connectedClients.size(); i++) {
+		if (this->_connectedClients[i]->getClientFd() == sockfd) {
+			delete this->_connectedClients[i];
+			this->_connectedClients.erase(this->_connectedClients.begin() + i);
+			break;
+		}
+	}
+}
+
 int Server::_creatpoll(int sockfd) {
 	struct pollfd pf;
 
@@ -61,6 +100,8 @@ int Server::_recv(int sockfd) {
 			break;
 		}
 	}
+	if (cntBytes == 0)
+		return -1;
 	if (msg.length() > 512)
 		msg = msg.substr(0, 510) + "\r\n";
 	else
@@ -81,13 +122,14 @@ int Server::chat(Client &client)
 		msg = client.parse(this->_message.c_str());
 		this->commandHandler(client, msg);
 	}
+	else
+		return -1;
 	return (0);
 }
 
 int Server::run()
 {
 	this->s->_socket();
-	std::cout << "Main server: " << this->s->getSockfd() << std::endl;
 	this->s->_bind();
 	this->s->_linsten(5);
 	return (0);
@@ -97,13 +139,15 @@ int Server::loop() {
 	const id_t	timeout(1000);
 
 	this->run();
-	while (true) {
+
+	// signal(SIGINT, sigHandler);
+	while (work) {
 		this->s->_accept();
 		this->_creatpoll(this->s->getConnfd());
-		// std::cout << "Vector userfds: \n";
-		// for (std::vector<struct pollfd>::iterator it = this->_userfds.begin(); it != this->_userfds.end(); it++) {
-		// 	std::cout << "\tfd: " << (*it).fd << "\tevent: " << (*it).events << std::endl;
-		// }
+		std::cout << "Vector userfds: \n";
+		for (std::vector<struct pollfd>::iterator it = this->_userfds.begin(); it != this->_userfds.end(); it++) {
+			std::cout << "\tfd: " << (*it).fd << "\tevent: " << (*it).events << std::endl;
+		}
 		// this->_clients.push_back(new Client());
 		int ret = poll(this->_userfds.data(), this->_userfds.size(), timeout);
 		if (ret == 0)
@@ -112,10 +156,15 @@ int Server::loop() {
 		else if (ret != -1) {
 			for (size_t it = 0; it < this->_userfds.size(); it++) {
 				if (this->_userfds[it].revents & POLLIN) {
-					this->chat(*this->_clients[it]);
+					int fd = this->_userfds[it].fd;
+					if (this->chat(this->_findclient(fd)) == -1) {
+						_deletepoll(fd);
+						break;
+					}
 					this->_userfds[it].revents = 0;
 				}
 			}
 		}
 	}
+	return (0);
 }

@@ -141,3 +141,16 @@ void	Server::commandAWAY(Client &client, Message &msg)
 	}
 }
 
+void	Server::commandQUIT(Client &client, Message &msg) {
+	(void)msg;
+	this->_deletepoll(client.getClientFd());
+
+	std::vector<Channel *> channels = client.getChannel();
+	for (size_t i = 0; i < channels.size(); i++) {
+		Channel *c = channels[i];
+		if (c->empty())
+			remove_channel(c);
+		// else if (channel->operators_empty())
+		// 	channel->make_any_operator();
+	}
+}

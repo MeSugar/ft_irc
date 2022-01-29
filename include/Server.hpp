@@ -81,7 +81,9 @@ class Server
     virtual int chat(Client &client);
 		int _recv(int sockfd);
 		int _creatpoll(int sockfd);
+		void _deletepoll(int sockfd);
 		int _handler(std::string msg, int sockfd);
+		Client &_findclient(int sockfd);
 
 		// commands
 		void	commandHandler(Client &client, Message &msg);
@@ -97,5 +99,7 @@ class Server
 		
 		void	commandPRIVMSG(Client &client, Message &msg);
 		void	commandNOTICE(Client &client, Message &msg);
+
+		void	commandQUIT(Client &client, Message &msg);
 
 };

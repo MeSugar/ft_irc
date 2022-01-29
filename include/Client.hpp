@@ -84,6 +84,8 @@ class Client
 		bool	check_invitation(const std::string&	ch_name);
 		bool	under_channels_limit() const;
 
+		std::vector<Channel *> getChannel();
+
 		// parser
 		Message	parse(const char* buf);
 };
