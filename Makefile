@@ -1,6 +1,6 @@
 NAME		=	ircserv
 
-CFLAGS		=	-Wall -Wextra -Werror -std=c++98
+CFLAGS		=	-Wall -Wextra -Werror -std=c++98 -g
 
 CC			=	clang++ -g
 
@@ -9,7 +9,7 @@ INCLUDES	=	include/Channel.hpp include/Client.hpp include/Reply.hpp \
 
 SRCS		=	source/main.cpp source/Client.cpp source/Reply.cpp source/Server.cpp \
 				source/Socket.cpp source/Commands.cpp source/ServerUtils.cpp \
-				source/channel_op.cpp source/Channel.cpp
+				source/Channel.cpp
 
 all : $(NAME)
 

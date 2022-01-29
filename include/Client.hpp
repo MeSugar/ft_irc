@@ -32,8 +32,11 @@ class Client
 
 		// Server const&				_server;
 		std::vector<Channel *>		_channels;
-		unsigned const				_channelsLimit;
 		std::vector<std::string>	_channels_invited;
+		bool						_invisible;
+		bool						_receive_server_notices;
+		bool						_receive_wallops;
+		unsigned const				_channelsLimit;
 		time_t						_lastMessageTime;
 		time_t						_messageTimeout;
 		
@@ -47,7 +50,7 @@ class Client
 		int		get_prefix(const char* buf, Message& res);
 		void    get_command(const char *buf, Message& res, int& i);
 		void	get_params(const char *buf, Message& res, int& i);
-		int		check_command(Message& mes);
+		int		check_command(const Message& mes);
 
 	public:
 		Client(int sockfd);
@@ -62,6 +65,11 @@ class Client
 		std::string const	&getNickname() const;
 		std::string const	&getUsername() const;
 		std::string const	&getHostname() const;
+		const bool&			get_invisible() const;
+		const bool&			get_receive_notices() const;
+		const bool&			get_receive_wallops() const;
+		const bool&			get_operator_status() const;
+		std::string			get_full_name() const;
 		time_t				getLastMessageTime() const;
 		time_t				getMessageTimeout() const;
 
@@ -78,7 +86,6 @@ class Client
 		void	setLastMessageTime(time_t time);
 		void	setMessageTimeout(time_t time);
 
-		void	add_channel(Channel* channel);
 		void	remove_channel(Channel *channel);
 
 		bool	check_invitation(const std::string&	ch_name);
@@ -86,6 +93,18 @@ class Client
 
 		std::vector<Channel *> getChannel();
 
+		void	set_invisible(bool status);
+		void	set_receive_notices(bool status);
+		void	set_receive_wallops(bool status);
+		void	set_operator_status(bool status);
+
+		//TEST
+		// void	client_test_loop(Server& serv);
+
+		void	add_channel(Channel* channel);
+		void	add_invite(const std::string& channel);
+
+		bool	check_names_visibility(const Client& client);
 		// parser
 		Message	parse(const char* buf);
 };

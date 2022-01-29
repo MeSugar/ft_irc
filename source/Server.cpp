@@ -13,7 +13,7 @@ Server::Server(int port, std::string const &password)
 	this->_port = port;
 	this->_password = password;
 	this->s = new Socket(port, password);
-	this->_servername = "~Nasha Iro4ka 1.0~";
+	this->_servername = "~Nasha_Iro4ka_1.0~";
 	this->_operatorHosts.push_back("host");
 	this->_operators.insert(std::pair<std::string, std::string>("admin", "admin"));
 	this->_commands.insert(std::make_pair("PASS", &Server::commandPASS));
@@ -23,12 +23,12 @@ Server::Server(int port, std::string const &password)
 	// this->_commands.insert(std::make_pair("QUIT", &Server::commandQUIT));
 	this->_commands.insert(std::make_pair("JOIN", &Server::commandJOIN));
 	this->_commands.insert(std::make_pair("PART", &Server::commandPART));
-	// this->_commands.insert(std::make_pair("MODE", &Server::commandMODE));
-	// this->_commands.insert(std::make_pair("TOPIC", &Server::commandTOPIC));
-	// this->_commands.insert(std::make_pair("NAMES", &Server::commandNAMES));
-	// this->_commands.insert(std::make_pair("LIST", &Server::commandLIST));
-	// this->_commands.insert(std::make_pair("INVITE", &Server::commandINVITE));
-	// this->_commands.insert(std::make_pair("KICK", &Server::commandLICK));
+	this->_commands.insert(std::make_pair("MODE", &Server::commandMODE));
+	this->_commands.insert(std::make_pair("TOPIC", &Server::commandTOPIC));
+	this->_commands.insert(std::make_pair("NAMES", &Server::commandNAMES));
+	this->_commands.insert(std::make_pair("LIST", &Server::commandLIST));
+	this->_commands.insert(std::make_pair("INVITE", &Server::commandINVITE));
+	this->_commands.insert(std::make_pair("KICK", &Server::commandKICK));
 	this->_commands.insert(std::make_pair("PRIVMSG", &Server::commandPRIVMSG));
 	this->_commands.insert(std::make_pair("NOTICE", &Server::commandNOTICE));
 	// this->_commands.insert(std::make_pair("KILL", &Server::commandKILL));
@@ -116,7 +116,8 @@ int Server::_recv(int sockfd) {
 
 int Server::chat(Client &client)
 {
-	Message msg; 
+	Message msg;
+	std::cout << this->_message << std::endl;
 	if (this->_recv(client.getClientFd()) == 0)
 	{
 		msg = client.parse(this->_message.c_str());

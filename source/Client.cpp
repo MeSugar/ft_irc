@@ -1,7 +1,9 @@
 #include "../include/Client.hpp"
 
 Client::Client(int sockfd)
-: _clientFd(sockfd), _isRegistered(false), _isAway(false), _channelsLimit(10), _messageTimeout(2)
+: _clientFd(sockfd), _isRegistered(false), _isOperator(false),
+_isAway(false), _invisible(false), _receive_server_notices(false),
+_receive_wallops(false), _channelsLimit(10), _messageTimeout(2)
 {}
 
 Client::~Client() {
@@ -9,14 +11,27 @@ Client::~Client() {
 }
 
 // getters
-int					Client::getClientFd() const { return this->_clientFd; }
-bool				Client::getRegistrationStatus() const { return this->_isRegistered; }
 bool				Client::getAwayStatus() const { return this->_isAway; }
 std::string	const	&Client::getAwayMessage() const { return this->_awayMessage; }
+int					Client::getClientFd() const { return this->_clientFd; }
+bool				Client::getRegistrationStatus() const { return this->_isRegistered; }
 std::string	const	&Client::getPassword() const { return this->_password; }
 std::string const	&Client::getNickname() const { return this->_nickname; }
 std::string const	&Client::getUsername() const { return this->_username; }
-std::string	const	&Client::getHostname() const { return this->_hostname; }
+std::string	const	&Client::getHostname() const { return this->_hostname; } 
+const bool&			Client::get_invisible() const { return (_invisible); }
+const bool&			Client::get_receive_notices() const { return (_receive_server_notices); }
+const bool&			Client::get_receive_wallops() const { return (_receive_wallops); }
+const bool&			Client::get_operator_status() const { return (_isOperator); }
+
+std::string	Client::get_full_name() const
+{
+	std::string	tmp;
+	
+	tmp = ':' + _nickname + '!' + _username + '@' + _hostname;
+	return (tmp);
+}
+
 time_t				Client::getLastMessageTime() const { return this->_lastMessageTime; }
 time_t				Client::getMessageTimeout() const { return this->_messageTimeout; }
 
@@ -43,6 +58,10 @@ void	Client::setAwayStatus(const std::string &msg)
 }
 
 void	Client::setOperatorStatus() { this->_isOperator = true; }
+void	Client::set_invisible(bool status) { _invisible = status; }
+void	Client::set_receive_notices(bool status) { _receive_server_notices = status; }
+void	Client::set_receive_wallops(bool status) { _receive_wallops = status; }
+void	Client::set_operator_status(bool status) { _isOperator = status; }
 void	Client::setHostname(std::string const &hostname) { this->_hostname = hostname; }
 
 void	Client::setUser(std::vector<std::string> &params)
@@ -55,6 +74,33 @@ void	Client::setUser(std::vector<std::string> &params)
 			params[3].erase(params[3].begin());
 		this->_realname = params[3];
 	}
+}
+
+void	Client::add_invite(const std::string& channel)
+{
+	for (std::vector<std::string>::iterator it = _channels_invited.begin(); it != _channels_invited.end(); it++)
+		if (*it == channel)
+			return;
+	_channels_invited.push_back(channel);
+}
+
+bool	Client::under_channels_limit() const
+{
+	if (_channels.size() < _channelsLimit)
+		return (true);
+	return (false);
+}
+
+bool	Client::check_names_visibility(const Client& client)
+{
+	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++)
+	{
+		if (!((*it)->get_private_status()) && !((*it)->get_secret_status()))
+			return (false);
+		if ((*it)->have_member(client))
+			return (false);
+	}
+	return (true);
 }
 
 // parser utils
@@ -120,7 +166,7 @@ void	Client::get_params(const char *buf, Message& res, int& i)
 	}
 }
 
-int		Client::check_command(Message& mes)
+int		Client::check_command(const Message& mes)
 {
 	const char*	com_array[] = {"PASS", "NICK", "USER", "OPER", "QUIT",
 						"JOIN", "PART", "MODE", "TOPIC", "NAMES", "LIST", "INVITE", "KICK",
@@ -175,7 +221,6 @@ Message		Client::parse(const char* buf)
 	return (res);
 }
 
-
 // channel utils
 bool	Client::check_invitation(const std::string&	ch_name)
 {
@@ -198,13 +243,6 @@ void	Client::remove_channel(Channel *channel)
 			_channels.erase(it);
 			break;
 		}
-}
-
-bool	Client::under_channels_limit() const
-{
-	if (_channels.size() < _channelsLimit)
-		return (true);
-	return (false);
 }
 
 void	Client::setLastMessageTime(time_t time) { this->_lastMessageTime = time; }
