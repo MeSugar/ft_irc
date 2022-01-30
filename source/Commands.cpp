@@ -187,7 +187,7 @@ void Server::commandJOIN(Client& client, Message& msg)
 				sendReply(client, generateErrorReply(_servername, ERR_BANNEDFROMCHAN, client.getNickname(), *it));
 				continue;
 			}
-			if (channel->have_key() && (keys.size() < j || !(channel->check_key(keys[j]))))
+			if (channel->have_key() && (keys.size() <= j || !(channel->check_key(keys[j]))))
 			{	
 				sendReply(client, generateErrorReply(_servername, ERR_BADCHANNELKEY, client.getNickname(), *it));
 				continue;
