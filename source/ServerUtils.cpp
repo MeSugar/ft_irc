@@ -705,6 +705,8 @@ void	Server::handle_user_mode(char sign, char mode, Client& client)
 			client.set_invisible(true);
 		else if (sign == '-' && client.get_invisible())
 			client.set_invisible(false);
+		else
+			return;
 	}
 	else if (mode == 's')
 	{
@@ -712,6 +714,8 @@ void	Server::handle_user_mode(char sign, char mode, Client& client)
 			client.set_receive_notices(true);
 		else if (sign == '-' && client.get_receive_notices())
 			client.set_receive_notices(false);
+		else
+			return;
 	}
 	else if (mode == 'w')
 	{
@@ -719,10 +723,16 @@ void	Server::handle_user_mode(char sign, char mode, Client& client)
 			client.set_receive_wallops(true);
 		else if (sign == '-' && client.get_receive_wallops())
 			client.set_receive_wallops(false);
+		else
+			return;
 	}
 	else if (mode == 'o')
+	{	
 		if (sign == '-' && client.get_operator_status())
 			client.set_operator_status(false);
+		else
+			return;
+	}
 	std::string tmp;
 	tmp = client.get_full_name() + " MODE " + client.getNickname() + " :"
 			+ sign + mode + "\r\n";
