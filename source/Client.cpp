@@ -57,7 +57,6 @@ void	Client::setAwayStatus(const std::string &msg)
 		this->_isAway = false;
 }
 
-void	Client::setOperatorStatus() { this->_isOperator = true; }
 void	Client::set_invisible(bool status) { _invisible = status; }
 void	Client::set_receive_notices(bool status) { _receive_server_notices = status; }
 void	Client::set_receive_wallops(bool status) { _receive_wallops = status; }

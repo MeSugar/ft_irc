@@ -14,7 +14,7 @@ Server::Server(int port, std::string const &password)
 	this->_password = password;
 	this->s = new Socket(port, password);
 	this->_servername = "~Nasha_Iro4ka_1.0~";
-	this->_operatorHosts.push_back("host");
+	this->_operatorHosts.push_back("somehost.ru");
 	this->_operators.insert(std::pair<std::string, std::string>("admin", "admin"));
 	this->_commands.insert(std::make_pair("PASS", &Server::commandPASS));
 	this->_commands.insert(std::make_pair("NICK", &Server::commandNICK));
@@ -31,11 +31,7 @@ Server::Server(int port, std::string const &password)
 	this->_commands.insert(std::make_pair("KICK", &Server::commandKICK));
 	this->_commands.insert(std::make_pair("PRIVMSG", &Server::commandPRIVMSG));
 	this->_commands.insert(std::make_pair("NOTICE", &Server::commandNOTICE));
-	// this->_commands.insert(std::make_pair("KILL", &Server::commandKILL));
-	// this->_commands.insert(std::make_pair("PING", &Server::commandPING));
-	// this->_commands.insert(std::make_pair("PONG", &Server::commandPONG));
-	// this->_commands.insert(std::make_pair("REHASH", &Server::commandREHASH));
-	// this->_commands.insert(std::make_pair("RESTART", &Server::commandRESTART));
+	this->_commands.insert(std::make_pair("KILL", &Server::commandKILL));
 	this->_commands.insert(std::make_pair("AWAY", &Server::commandAWAY));
 	this->parseMOTD();
 }
@@ -59,7 +55,6 @@ void Server::_deletepoll(int sockfd) {
 	}
 	for (size_t i = 0; i < this->_clients.size(); i++) {
 		if (this->_clients[i]->getClientFd() == sockfd) {
-			delete this->_clients[i];
 			this->_clients.erase(this->_clients.begin() + i);
 			break;
 		}

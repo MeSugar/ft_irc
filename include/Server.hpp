@@ -119,7 +119,6 @@ class Server
 		void	commandAWAY(Client &client, Message &msg);
 		void	commandPRIVMSG(Client &client, Message &msg);
 		void	commandNOTICE(Client &client, Message &msg);
-
 		void	commandQUIT(Client &client, Message &msg);
-
+		void	commandKILL(Client &client, Message &msg);
 };
