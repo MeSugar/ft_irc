@@ -6,7 +6,9 @@ _isAway(false), _invisible(false), _receive_server_notices(false),
 _receive_wallops(false), _channelsLimit(10), _messageTimeout(2)
 {}
 
-Client::~Client() {}
+Client::~Client() {
+	close(this->_clientFd);
+}
 
 // getters
 bool				Client::getAwayStatus() const { return this->_isAway; }
@@ -245,4 +247,6 @@ void	Client::remove_channel(Channel *channel)
 
 void	Client::setLastMessageTime(time_t time) { this->_lastMessageTime = time; }
 void	Client::setMessageTimeout(time_t time) { this->_messageTimeout = time; }
+std::vector<Channel *> Client::getChannel() { return this->_channels; }
+
 		

@@ -148,6 +148,21 @@ void	Server::commandAWAY(Client &client, Message &msg)
 	}
 }
 
+void	Server::commandQUIT(Client &client, Message &msg) {
+	(void)msg;
+
+	std::vector<Channel *> channels = client.getChannel();
+	for (size_t i = 0; i < channels.size(); i++) {
+		Channel *c = channels[i];
+		c->remove_member(&client);
+		if (c->empty())
+			remove_channel(c);
+		else if (c->operators_empty())
+			c->make_any_operator();
+	}
+	this->_deletepoll(client.getClientFd());
+}
+
 void Server::commandJOIN(Client& client, Message& msg)
 {
 	if ((!msg.prefix.empty() && !comparePrefixAndNick(msg.prefix, client)) || !client.getRegistrationStatus())

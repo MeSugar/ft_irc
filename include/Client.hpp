@@ -72,7 +72,8 @@ class Client
 		std::string			get_full_name() const;
 		time_t				getLastMessageTime() const;
 		time_t				getMessageTimeout() const;
-
+		std::vector<Channel *> getChannel();
+  
 		// setters
 		void	setClientFd(int fd);
 		void	setPassword(std::string const &pass);
@@ -90,7 +91,6 @@ class Client
 
 		bool	check_invitation(const std::string&	ch_name);
 		bool	under_channels_limit() const;
-
 		void	set_invisible(bool status);
 		void	set_receive_notices(bool status);
 		void	set_receive_wallops(bool status);
@@ -103,7 +103,6 @@ class Client
 		void	add_invite(const std::string& channel);
 
 		bool	check_names_visibility(const Client& client);
-		
 		// parser
 		Message	parse(const char* buf);
 };

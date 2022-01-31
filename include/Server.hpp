@@ -86,7 +86,9 @@ class Server
 		virtual int chat(Client &client);
 		int _recv(int sockfd);
 		int _creatpoll(int sockfd);
+		void _deletepoll(int sockfd);
 		int _handler(std::string msg, int sockfd);
+		Client &_findclient(int sockfd);
 
 		//command utils
 		void	channel_mode(Client &client, Message &msg); //checks and iterates on channel mode string
@@ -117,5 +119,7 @@ class Server
 		void	commandAWAY(Client &client, Message &msg);
 		void	commandPRIVMSG(Client &client, Message &msg);
 		void	commandNOTICE(Client &client, Message &msg);
+
+		void	commandQUIT(Client &client, Message &msg);
 
 };
