@@ -247,6 +247,6 @@ void	Client::remove_channel(Channel *channel)
 
 void	Client::setLastMessageTime(time_t time) { this->_lastMessageTime = time; }
 void	Client::setMessageTimeout(time_t time) { this->_messageTimeout = time; }
-
 std::vector<Channel *> Client::getChannel() { return this->_channels; }
+
 		
