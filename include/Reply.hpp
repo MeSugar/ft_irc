@@ -126,6 +126,7 @@
 #define RPL_ADMINLOC1			257
 #define RPL_ADMINLOC2			258
 #define RPL_ADMINEMAIL			259
+#define RPL_KILLUSER			260
 
 std::string generateErrorReply(std::string const &from, int const errorCode,
 										std::string const &to = std::string(),
