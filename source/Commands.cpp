@@ -78,7 +78,7 @@ void	Server::commandOPER(Client &client, Message &msg)
 {
 	if (msg.prefix.empty() || this->comparePrefixAndNick(msg.prefix, client))
 	{
-		if (msg.params.size() < 4)
+		if (msg.params.size() < 2)
 			this->sendReply(client, generateErrorReply(this->_servername, ERR_NEEDMOREPARAMS, client.getNickname(), "OPER"));
 		else if (msg.params.size() == 2 && this->checkOperatorList(msg.params[0], msg.params[1]) == ERR_WRONGUSERNAME)
 			this->sendReply(client, generateErrorReply(this->_servername, ERR_WRONGUSERNAME, client.getNickname(), "OPER"));
@@ -88,7 +88,7 @@ void	Server::commandOPER(Client &client, Message &msg)
 			this->sendReply(client, generateErrorReply(this->_servername, ERR_NOOPERHOST, client.getNickname(), "OPER"));
 		else
 		{
-			client.setOperatorStatus();
+			client.set_operator_status(true);
 			this->sendReply(client, generateNormalReply(this->_servername, RPL_YOUREOPER, client.getNickname(), "OPER"));
 		}
 	}
@@ -116,11 +116,11 @@ void	Server::commandPRIVMSG(Client &client, Message &msg)
 					else if (client.getNickname() != cl.getNickname())
 					{
 						if (channel_members.find(cl.getNickname()) != channel_members.end())
-							sendReply(cl, ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname()
-							+ " " + msg.command + " " + channel_members.find(cl.getNickname())->second + " " + ":" + msg.params[1] + "\n");
+							sendReply(cl, client.get_full_name() + " " + msg.command
+							+ " " + channel_members.find(cl.getNickname())->second + " " + ":" + msg.params[1] + "\n");
 						else
-							sendReply(cl, ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname()
-							+ " " + msg.command + " " + client.getNickname() + " " + ":" + msg.params[1] + "\n");
+							sendReply(cl, client.get_full_name() + " " + msg.command + " "
+							+ client.getNickname() + " " + ":" + msg.params[1] + "\n");
 					}
 				}
 				delete recipients;
@@ -148,18 +148,18 @@ void	Server::commandAWAY(Client &client, Message &msg)
 	}
 }
 
-void	Server::commandQUIT(Client &client, Message &msg) {
+void	Server::commandQUIT(Client &client, Message &msg)
+{
 	(void)msg;
-
+	Message partMsg = Message();
+	partMsg.command = "PART";
+	std::string params;
 	std::vector<Channel *> channels = client.getChannel();
-	for (size_t i = 0; i < channels.size(); i++) {
-		Channel *c = channels[i];
-		c->remove_member(&client);
-		if (c->empty())
-			remove_channel(c);
-		else if (c->operators_empty())
-			c->make_any_operator();
-	}
+	for (size_t i = 0; i < channels.size(); i++)
+		params.append(channels[i]->get_name() + ",");
+	partMsg.params.push_back(params);
+	if (!partMsg.params[0].empty())
+		this->commandPART(client, partMsg);
 	this->_deletepoll(client.getClientFd());
 }
 
@@ -506,4 +506,22 @@ void	Server::commandKICK(Client &client, Message &msg)
 	channel->send_message(tmp);
 	channel->remove_member(target);
 	target->remove_channel(channel);
+}
+
+void	Server::commandKILL(Client &client, Message &msg)
+{
+	Client *cl = findClient(msg.params[0], this->_connectedClients);
+	if (!client.get_operator_status())
+		sendReply(client, generateErrorReply(_servername, ERR_NOPRIVILEGES, client.getNickname(), msg.command));
+	else if (msg.params.size() < 2)
+		sendReply(client, generateErrorReply(_servername, ERR_NEEDMOREPARAMS, client.getNickname(), msg.command));
+	else if (msg.params[0] == this->_servername)
+		sendReply(client, generateErrorReply(_servername, ERR_CANTKILLSERVER, client.getNickname(), msg.command, msg.params[0]));
+	else if (cl == NULL)
+		sendReply(client, generateErrorReply(_servername, ERR_NOSUCHNICK, client.getNickname(), msg.command, msg.params[0]));
+	else
+	{
+		this->sendReply(*cl, generateNormalReply(this->_servername, RPL_KILLUSER, cl->getNickname(), "KILL", msg.params[1]));
+		this->commandQUIT(*cl, msg);
+	}
 }

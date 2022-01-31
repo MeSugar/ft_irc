@@ -268,6 +268,8 @@ std::string generateNormalReply(std::string const &from, int const replyCode,
 			return (std::string(prefix + arg1 + "\n"));
 		case RPL_ADMINEMAIL:
 			return (std::string(prefix + arg1 + "\n"));
+		case RPL_KILLUSER:
+			return (std::string(prefix + arg1 + " " + arg2 + "\n"));
 		default:
 			return (std::string(prefix + arg1 + " " + arg2 + " :Something happend, but we really don't know\n"));
 	}

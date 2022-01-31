@@ -82,7 +82,6 @@ class Client
 		void	setUser(std::vector<std::string> &params);
 
 		void	setRegistrationStatus();
-		void	setOperatorStatus();
 		void	setAwayStatus(const std::string &msg = std::string());
 		void	setLastMessageTime(time_t time);
 		void	setMessageTimeout(time_t time);
