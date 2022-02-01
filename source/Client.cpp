@@ -155,12 +155,14 @@ void	Client::get_params(const char *buf, Message& res, int& i)
 			start++;
 			while (buf[i] != '\r')
 				i++;
-			res.params.push_back(temp.append(&buf[start], i - start));
+			if (i - start)
+				res.params.push_back(temp.append(&buf[start], i - start));
 			return ;
 		}
 		while (buf[i] != '\r' && buf[i] != ' ')
 			i++;
-		res.params.push_back(temp.append(&buf[start], i - start));
+		if (i - start)
+			res.params.push_back(temp.append(&buf[start], i - start));
 		temp.clear();
 	}
 }
