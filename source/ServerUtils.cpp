@@ -608,7 +608,7 @@ void	Server::channel_mods_rpl(Channel* channel, Client& client)
 		tmp += 'm';
 	if (channel->get_user_limit() != MAX_MEMBERS)
 	{	
-		tmp += 'i';
+		tmp += 'l';
 		ss << channel->get_user_limit();
 	}
 	sendReply(client, generateNormalReply(_servername, RPL_CHANNELMODEIS, client.getNickname(), channel->get_name(), tmp, ss.str()));
