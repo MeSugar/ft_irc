@@ -24,6 +24,8 @@ void	Server::commandProcessor(Client &client, Message &msg)
 
 void	Server::commandPASS(Client &client, Message &msg)
 {
+	time_t t = time(0);
+	client.setLastMessageTime(t);
 	if (msg.prefix.empty() && client.getNickname().empty() && client.getUsername().empty())
 	{
 		if (client.getRegistrationStatus())
@@ -39,6 +41,8 @@ void	Server::commandPASS(Client &client, Message &msg)
 
 void	Server::commandNICK(Client &client, Message &msg)
 {
+	time_t t = time(0);
+	client.setLastMessageTime(t);
 	if ((msg.prefix.empty() || this->comparePrefixAndNick(msg.prefix, client)) && !client.getPassword().empty())
 	{
 		if (msg.params.empty())
@@ -60,6 +64,8 @@ void	Server::commandNICK(Client &client, Message &msg)
 
 void	Server::commandUSER(Client &client, Message &msg)
 {
+	time_t t = time(0);
+	client.setLastMessageTime(t);
 	if (msg.prefix.empty() && !client.getPassword().empty())
 	{
 		if (client.getRegistrationStatus())

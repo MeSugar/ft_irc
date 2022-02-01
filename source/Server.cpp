@@ -36,7 +36,15 @@ Server::Server(int port, std::string const &password)
 	this->parseMOTD();
 }
 
-Server::~Server() {}
+Server::~Server()
+{
+	delete this->s;
+	for (std::vector<Channel *>::iterator it = this->_channels.begin(); it != this->_channels.end(); it++)
+	{
+		delete *it;
+		_channels.erase(it);
+	}
+}
 
 Client &Server::_findclient(int sockfd) {
 	for (size_t i = 0; i < this->_clients.size(); i++) {
