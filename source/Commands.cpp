@@ -118,7 +118,7 @@ void	Server::commandPRIVMSG(Client &client, Message &msg)
 				{
 					Client &cl = *this->findClient((*it), this->_connectedClients);
 					if (cl.getAwayStatus() && msg.command != "NOTICE")
-						sendReply(client, generateNormalReply(this->_servername, RPL_AWAY, client.getNickname(), msg.command, cl.getNickname(), cl.getAwayMessage()));
+						sendReply(client, generateNormalReply(this->_servername, RPL_AWAY, client.getNickname(), cl.getNickname(), cl.getAwayMessage()));
 					else if (client.getNickname() != cl.getNickname())
 					{
 						if (channel_members.find(cl.getNickname()) != channel_members.end())
