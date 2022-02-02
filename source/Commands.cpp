@@ -460,7 +460,7 @@ void	Server::commandINVITE(Client &client, Message &msg)
 		return;
 	}
 	target->add_invite(msg.params[1]);
-	sendReply(client, generateNormalReply(_servername, RPL_INVITING, client.getNickname(), msg.params[1], msg.params[0]));
+	sendReply(client, generateNormalReply(_servername, RPL_INVITING, client.getNickname(), msg.params[0], msg.params[1]));
 	std::string tmp;
 	tmp = client.get_full_name() + " INVITE " + msg.params[0] + ' '
 			+ msg.params[1] + "\r\n";
