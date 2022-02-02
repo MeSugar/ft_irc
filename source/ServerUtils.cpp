@@ -577,7 +577,6 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 
 void	Server::channel_mods_rpl(Channel* channel, Client& client)
 {
-	(void)client;
 	std::string	tmp;
 	std::stringstream ss;
 
@@ -612,7 +611,6 @@ void	Server::channel_mods_rpl(Channel* channel, Client& client)
 
 void	Server::banlist_rpl(Channel* channel, Client& client)
 {
-	(void)client;
 	const std::vector<std::string> bans = channel->get_banlist();
 
 	for (std::vector<std::string>::const_iterator it = bans.begin(); it != bans.end(); it++)
