@@ -519,15 +519,6 @@ void	Server::handle_channel_mode(char sign, char mode, Channel* channel, std::st
 		else
 			return;
 	}
-	else if (mode == 'm')
-	{
-		if (sign == '+' && !(channel->get_moder_status()))
-			channel->set_moder_status(true);
-		else if (sign == '-' && channel->get_moder_status())
-			channel->set_moder_status(false);
-		else
-			return;
-	}
 	else if (mode == 'l')
 	{	
 		if ((sign == '-' && channel->get_user_limit() != MAX_MEMBERS)
