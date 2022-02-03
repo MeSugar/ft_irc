@@ -3,7 +3,7 @@
 Client::Client(int sockfd)
 : _clientFd(sockfd), _isRegistered(false), _isOperator(false),
 _isAway(false), _invisible(false), _receive_server_notices(false),
-_receive_wallops(false), _channelsLimit(10), _messageTimeout(2)
+_receive_wallops(false), _channelsLimit(10), _messageTimeout(1)
 {}
 
 Client::~Client() {
