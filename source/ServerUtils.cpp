@@ -256,7 +256,7 @@ bool	Server::floodCheck(Client &client)
 	if (t - client.getLastMessageTime() > client.getMessageTimeout())
 	{
 		client.setLastMessageTime(t);
-		client.setMessageTimeout(2);
+		client.setMessageTimeout(1);
 		return true;
 	}
 	client.setLastMessageTime(t);
