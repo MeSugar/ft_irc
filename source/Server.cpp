@@ -63,6 +63,8 @@ void Server::_deletepoll(int sockfd) {
 	}
 	for (size_t i = 0; i < this->_clients.size(); i++) {
 		if (this->_clients[i]->getClientFd() == sockfd) {
+			if (!this->_clients[i]->getAwayStatus())
+				delete this->_clients[i];
 			this->_clients.erase(this->_clients.begin() + i);
 			break;
 		}
@@ -146,29 +148,23 @@ int Server::loop() {
 
 	// signal(SIGINT, sigHandler);
 	while (work) {
-		this->s->_accept();
-		this->_creatpoll(this->s->getConnfd());
-		// std::cout << "Vector userfds: \n";
-		// for (std::vector<struct pollfd>::iterator it = this->_userfds.begin(); it != this->_userfds.end(); it++) {
-		// 	// std::cout << "\tfd: " << (*it).fd << "\tevent: " << (*it).events << std::endl;
-		// }
-		// this->_clients.push_back(new Client());
 		int ret = poll(this->_userfds.data(), this->_userfds.size(), timeout);
-		if (ret == 0)
-		{}
-			// std::cout << "Error: timeout\n";
-		else if (ret != -1) {
+		if (ret != -1) {
 			for (size_t it = 0; it < this->_userfds.size(); it++) {
 				if (this->_userfds[it].revents & POLLIN) {
 					int fd = this->_userfds[it].fd;
-					if (this->chat(this->_findclient(fd)) == -1) {
-						_deletepoll(fd);
+					Client &c = this->_findclient(fd);
+					if (this->chat(c) == -1) {
+						struct Message m;
+						this->commandQUIT(c, m);
 						break;
 					}
 					this->_userfds[it].revents = 0;
 				}
 			}
 		}
+		this->s->_accept();
+		this->_creatpoll(this->s->getConnfd());
 	}
 	return (0);
 }
