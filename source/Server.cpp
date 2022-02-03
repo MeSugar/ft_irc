@@ -67,8 +67,8 @@ void Server::_deletepoll(int sockfd) {
 		}
 	}
 	for (size_t i = 0; i < this->_clients.size(); i++) {
-		if (this->_clients[i]->getClientFd() == sockfd) {s
-			if (!this->_clients[i]->getAwayStatus())
+		if (this->_clients[i]->getClientFd() == sockfd) {
+			if (!this->_clients[i]->getRegistrationStatus())
 				delete this->_clients[i];
 			this->_clients.erase(this->_clients.begin() + i);
 			break;
