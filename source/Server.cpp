@@ -38,6 +38,17 @@ Server::~Server()
 		delete *it;
 		_channels.erase(it);
 	}
+	for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+	{
+		if (!(*it)->getRegistrationStatus())
+			delete *it;
+		_clients.erase(it);
+	}
+	for (std::vector<Client *>::iterator it = this->_connectedClients.begin(); it != this->_connectedClients.end(); it++)
+	{
+		delete *it;
+		_connectedClients.erase(it);
+	}
 }
 
 Client &Server::_findclient(int sockfd) {
