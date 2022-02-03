@@ -5,7 +5,7 @@ void	Server::commandHandler(Client &client, Message &msg)
 		this->printLog(msg);
 		if (this->_commands.find(msg.command) != this->_commands.end())
 			this->commandProcessor(client, msg);
-		else
+		else if (!msg.command.empty())
 			this->sendReply(client, generateErrorReply(this->_servername, ERR_UNKNOWNCOMMAND, client.getNickname(), msg.command));
 }
 
