@@ -63,8 +63,8 @@ bool	Server::validateNickname(std::string const &nick)
 
 bool	Server::comparePrefixAndNick(std::string const &prefix, Client const &client)
 {
-	std::string nick = ':' + client.getNickname();
-	if (prefix == nick)
+	// std::string nick = ':' + client.getNickname();
+	if (prefix == client.getNickname())
 		return true;
 	return false;
 }

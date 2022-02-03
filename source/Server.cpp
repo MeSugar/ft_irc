@@ -2,12 +2,6 @@
 
 bool	work = true;
 
-void	sigHandler(int signum)
-{
-	(void)signum;
-	work = false;
-}
-
 Server::Server(int port, std::string const &password)
 {
 	this->_port = port;
@@ -44,6 +38,17 @@ Server::~Server()
 		delete *it;
 		_channels.erase(it);
 	}
+	for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+	{
+		if (!(*it)->getRegistrationStatus())
+			delete *it;
+		_clients.erase(it);
+	}
+	for (std::vector<Client *>::iterator it = this->_connectedClients.begin(); it != this->_connectedClients.end(); it++)
+	{
+		delete *it;
+		_connectedClients.erase(it);
+	}
 }
 
 Client &Server::_findclient(int sockfd) {
@@ -62,7 +67,7 @@ void Server::_deletepoll(int sockfd) {
 		}
 	}
 	for (size_t i = 0; i < this->_clients.size(); i++) {
-		if (this->_clients[i]->getClientFd() == sockfd) {
+		if (this->_clients[i]->getClientFd() == sockfd) {s
 			if (!this->_clients[i]->getAwayStatus())
 				delete this->_clients[i];
 			this->_clients.erase(this->_clients.begin() + i);
@@ -145,8 +150,6 @@ int Server::loop() {
 	const id_t	timeout(1000);
 
 	this->run();
-
-	// signal(SIGINT, sigHandler);
 	while (work) {
 		int ret = poll(this->_userfds.data(), this->_userfds.size(), timeout);
 		if (ret != -1) {
