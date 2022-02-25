@@ -1,7 +1,6 @@
 # Description
 
-Internet Relay Chat
-The goal of this project is to write an IRC server to work with a real IRC client.
+The goal of this project is to write an IRC (Internet Relay Chat) server to work with a real IRC client.
 
 From subject:
 ```
