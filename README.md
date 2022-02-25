@@ -1,6 +1,6 @@
 # Description
 
-The goal of this project is to write an IRC (Internet Relay Chat) server to work with a real IRC client.
+The goal of this project is to write an [IRC (Internet Relay Chat)](https://datatracker.ietf.org/doc/html/rfc1459) server to work with a real IRC client.
 
 From subject:
 ```
@@ -34,3 +34,24 @@ To ensure that your server correctly processes everything that you send to it, t
 command
 \$>
 ```
+
+# Supported client commands
+[Here](https://en.wikipedia.org/wiki/List_of_Internet_Relay_Chat_commands) you can find description and syntax
+
+- PASS
+- NICK
+- USER
+- OPER
+- QUIT
+- JOIN
+- PART
+- MODE
+- TOPIC
+- NAMES
+- LIST
+- INVITE
+- KICK
+- PRIVMSG
+- NOTICE
+- KILL
+- AWAY
