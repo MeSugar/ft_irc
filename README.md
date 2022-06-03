@@ -14,7 +14,7 @@ together to form a network.
 # Usage
 ```
 git clone https://github.com/MeSugar/ft_irc.git
-cd ft_printf
+cd ft_irc
 make
 ```
 
